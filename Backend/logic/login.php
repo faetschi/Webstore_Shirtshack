@@ -3,9 +3,12 @@
 include("dbaccess.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-    $remember = isset($_POST["remember"]);
+    $json_str = file_get_contents('php://input');
+    $json_obj = json_decode($json_str, true);
+
+    $username = isset($json_obj["username"]) ? $json_obj["username"] : null;
+    $password = isset($json_obj["password"]) ? $json_obj["password"] : null;
+    $remember = isset($json_obj["remember"]) ? $json_obj["remember"] : false;
 
     // validate user credential w db here
 

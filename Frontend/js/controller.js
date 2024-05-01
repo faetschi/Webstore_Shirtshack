@@ -25,14 +25,15 @@ function login() {
     $.ajax({
         url: '../../Backend/logic/login.php',
         type: 'POST',
-        data: {
+        data: JSON.stringify({
             username: username,
             password: password,
             remember: remember
-        },
-        dataType: 'json',
+        }),
+        contentType: 'application/json',
         success: function (response) {
-            if (response == 'success') {
+            console.log(response);
+            if (response.status == 'LoggedIn') {
                 window.location.href = '../sites/home.html';
             } else {
                 alert('Login failed. Please try again.');
@@ -48,8 +49,10 @@ function logout() {
     $.ajax({
         url: '../../Backend/logic/logout.php',
         type: 'GET',
+        contentType: 'application/json',
         success: function (response) {
-            if (response == 'success') {
+            console.log(response);
+            if (response.status == 'LoggedOut') {
                 window.location.href = '../sites/home.html';
             } else {
                 alert('Logout failed. Please try again.');
