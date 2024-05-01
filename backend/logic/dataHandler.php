@@ -1,5 +1,5 @@
 <?php
-include("./models/person.php");
+include("../models/person.php");
 class DataHandler
 {
     public function queryPersons() {
