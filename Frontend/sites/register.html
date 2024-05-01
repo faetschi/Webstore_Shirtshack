@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Page</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: right;
+            max-width: 400px;
+            margin: 0 auto;
+            padding-top: 40px;
+        }
+        .form-control {
+        width: 100%; /* Triple the width of the form controls */
+    }
+    </style>
+</head>
+<body>
+    </div><div class="container">
+        <h1>Register</h1>
+        
+        <form>
+            <div class="form-group">
+                <label for="firstname">First Name:</label>
+                <input type="text" class="form-control" id="firstname" name="firstname" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastname">Last Name:</label>
+                <input type="text" class="form-control" id="lastname" name="lastname" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="repassword">Re-enter Password:</label>
+                <input type="password" class="form-control" id="repassword" name="repassword" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="street">Street:</label>
+                <input type="text" class="form-control" id="street" name="street" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="city">City:</label>
+                <input type="text" class="form-control" id="city" name="city" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="zip">ZIP Code:</label>
+                <input type="text" class="form-control" id="zip" name="zip" required>
+            </div>
+            <div class="form-group">
+                <label for="state">State:</label>
+                <select class="form-control" id="state" name="state">
+                    <option value="">Select State</option>
+                    <option value="AL">Austria</option>
+                    <option value="AK">Germany</option>
+                    <option value="AK">Switzerland</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+    </div>
+    
+    <!-- Include Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
