@@ -9,7 +9,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="products.html">Products</a>
             </li>
-            
+            <li>
+                <a class="nav-link" href="coupons.html">Coupons</a>
+            </li>
         <!-- user is logged in -->
           <?php if (isset($_SESSION["username"]) || isset($_COOKIE["username"])): ?>
             <li class="nav-item">
