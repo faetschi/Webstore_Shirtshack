@@ -14,14 +14,27 @@
             </li>
         <!-- user is logged in -->
           <?php if (isset($_SESSION["username"]) || isset($_COOKIE["username"])): ?>
+
+
+            <?php if (isset($_SESSION["isAdmin"]) && $_SESSION["isAdmin"]): ?>
+              <li class="nav-item admin-only">
+                <a class="nav-link" href="editproducts.html">Edit Products</a>
+              </li>
+              <li class="nav-item admin-only">
+                <a class="nav-link" href="editcustomers.html">Manage Customers</a>
+              </li>
+              <li class="nav-item admin-only">
+                <a class="nav-link" href="editcoupons.html">Manage Coupons</a>
+              </li>
+            <?php endif; ?>
             <li class="nav-item">
-                <a class="nav-link" href="home.html">Home</a>
+              <a class="nav-link" href="home.html">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="orders.html">Orders</a>
+              <a class="nav-link" href="orders.html">Orders</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="invoices.html">Invoices</a>
+              <a class="nav-link" href="invoices.html">Invoices</a>
             </li>
           <?php endif; ?>
           </div>
@@ -36,7 +49,7 @@
         <!-- user is logged in -->
           <?php if (isset($_SESSION["username"]) || isset($_COOKIE["username"])): ?>
             <li class="nav-item">
-                <a class="nav-link" href="../../Backend/logic/logout.php">Logout</a>
+            <a class="nav-link" href="#" onclick="event.preventDefault(); logout();">Logout</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="account.html">My Account</a>
