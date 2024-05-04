@@ -1,6 +1,8 @@
 $(document).ready(function () { 
-    includeNavbar();
+    includes();
 });
+
+
 
 
 
@@ -83,6 +85,9 @@ function login() {
         success: function (response) {
             console.log(response);
             if (response.status == 'LoggedIn') {
+                // Store user details in session storage
+                sessionStorage.setItem('username', username);
+                // Redirect to home page or wherever needed
                 window.location.href = '../sites/home.html';
             } else {
                 alert('Login failed. Please try again.');
@@ -94,6 +99,7 @@ function login() {
     });
 }
 
+
 function logout() {
     $.ajax({
         url: '../../Backend/logic/logout.php',
@@ -102,13 +108,21 @@ function logout() {
         success: function (response) {
             console.log(response);
             if (response.status == 'LoggedOut') {
-                window.location.href = '../sites/home.html';
+                $('.admin-only').hide();
             } else {
                 alert('Logout failed. Please try again.');
             }
+            window.location.href = '../sites/home.html';
         },
         error: function (textStatus, errorThrown) {
             console.error('Error logging out.', textStatus, errorThrown);
         }
     });
+}
+
+
+
+
+function includes() {
+    includeNavbar();
 }

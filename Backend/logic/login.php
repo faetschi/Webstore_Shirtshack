@@ -10,11 +10,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = isset($json_obj["password"]) ? $json_obj["password"] : null;
     $remember = isset($json_obj["remember"]) ? $json_obj["remember"] : false;
 
-    // validate user credential w db here
+// TODO DATABASE VALIDATION
+    // validate user credential w db here (when login valid, do the rest)
 
     // login valid? start a session
     session_start();
+    // check if user is admin
+    if ($username == "admin" && $password == "admin") {
+        $_SESSION["isAdmin"] = true;
+    } else {
+        $_SESSION["isAdmin"] = false;
+    }
     $_SESSION["username"] = $username;
+    
 
     // if checkbox is checked, set a cookie
     if ($remember) {
@@ -32,6 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // send data to frontend
     header('Content-Type: application/json');
-    echo json_encode($data);
+    echo $json_data;
 }
 ?>
