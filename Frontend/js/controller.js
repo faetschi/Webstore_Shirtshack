@@ -4,6 +4,8 @@ $(document).ready(function () {
 
 
 
+
+
 function includeNavbar() {
     $.ajax({
         url: '../sites/navbar.php',
@@ -83,6 +85,9 @@ function login() {
         success: function (response) {
             console.log(response);
             if (response.status == 'LoggedIn') {
+                // Store user details in session storage
+                sessionStorage.setItem('username', username);
+                // Redirect to home page or wherever needed
                 window.location.href = '../sites/home.html';
             } else {
                 alert('Login failed. Please try again.');
@@ -93,6 +98,7 @@ function login() {
         }
     });
 }
+
 
 function logout() {
     $.ajax({
@@ -113,6 +119,9 @@ function logout() {
         }
     });
 }
+
+
+
 
 function includes() {
     includeNavbar();
