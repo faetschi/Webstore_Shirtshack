@@ -84,7 +84,7 @@
                         $('#payment').val(response.payment);
                     }
                 },
-                error: function (jqXHR, textStatus, errorThrown) {
+                error: function (textStatus, errorThrown) {
                     console.error('Error loading user data.', textStatus, errorThrown);
                     alert('Error loading user data. Please try again.');
                 }
@@ -121,7 +121,7 @@
                     console.log(response);
                     alert('User data saved successfully!');
                 },
-                error: function (jqXHR, textStatus, errorThrown) {
+                error: function (textStatus, errorThrown) {
                     console.error('Error saving user data.', textStatus, errorThrown);
                     alert('Error saving user data. Please try again.');
                 }
