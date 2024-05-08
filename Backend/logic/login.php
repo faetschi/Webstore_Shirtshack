@@ -21,19 +21,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $_SESSION["isAdmin"] = false;
     }
+    $_SESSION["loggedIn"] = true;
     $_SESSION["username"] = $username;
     
 
+    // TODO: Store the token in your database, associated with the user
+        // in combination with autoLogin for remember me button
+    $token = bin2hex(random_bytes(24));
+
     // if checkbox is checked, set a cookie
     if ($remember) {
-        setcookie("username", $username, time() + (86400 * 30), "/"); // 86400 = 1 day
+        setcookie("remember", $token, time() + (86400 * 30), "/"); // 86400 = 1 day
     }
 
     // data prep
     $data = array(
         "status" => "LoggedIn",
         "username" => $username,
-        "remember" => $remember
+        "remember" => $remember,
+        "isAdmin" => $_SESSION["isAdmin"]
     );
 
     $json_data = json_encode($data);

@@ -2,16 +2,52 @@ $(document).ready(function () {
     includes();
 });
 
-
-
-
+function getCookie(name) {
+    var nameEQ = name + "="; // Construct the cookie name with an equal sign
+    var ca = document.cookie.split(';'); // Split the cookie string into an array of individual cookies
+    for (var i = 0; i < ca.length; i++) { // Loop through each cookie
+        var c = ca[i]; // Get the current cookie
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length); // Trim leading spaces
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length); // If the cookie name matches the one we're looking for, return its value
+    }
+    return null; // If the cookie isn't found, return null
+}
 
 function includeNavbar() {
     $.ajax({
-        url: '../sites/navbar.php',
+        url: '../sites/navbar.html',
         type: 'GET',
         success: function (response) {
             $('#navbarContainer').html(response);
+            var remember = getCookie("remember");
+            var loggedIn = sessionStorage.getItem('loggedIn');
+            var isAdmin = sessionStorage.getItem('isAdmin');
+            console.log(loggedIn);
+            console.log(isAdmin);
+
+            if (loggedIn === 'true') {
+                // User is logged in
+                document.querySelectorAll('.no-user').forEach(function(element) {
+                    element.style.display = 'none'; // hide elements
+                });
+                document.querySelectorAll('.user-only').forEach(function(element) {
+                    element.style.display = 'block'; // show elements
+                });
+                if (isAdmin === 'true') {
+                    // User is an admin
+                    document.querySelectorAll('.admin-only').forEach(function(element) {
+                        element.style.display = 'block'; 
+                    });
+                }
+            } else {
+                // User is not logged in
+                document.querySelectorAll('.no-user').forEach(function(element) {
+                    element.style.display = 'block'; 
+                });
+                document.querySelectorAll('.user-only, .admin-only').forEach(function(element) {
+                    element.style.display = 'none';
+                });
+            }
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.error('Error loading navbar.', textStatus, errorThrown);
@@ -86,7 +122,8 @@ function login() {
             console.log(response);
             if (response.status == 'LoggedIn') {
                 // Store user details in session storage
-                sessionStorage.setItem('username', username);
+                sessionStorage.setItem('loggedIn', 'true');
+                sessionStorage.setItem('isAdmin', response.isAdmin ? 'true' : 'false');
                 // Redirect to home page or wherever needed
                 window.location.href = '../sites/home.html';
             } else {
@@ -108,7 +145,10 @@ function logout() {
         success: function (response) {
             console.log(response);
             if (response.status == 'LoggedOut') {
-                $('.admin-only').hide();
+                sessionStorage.removeItem('loggedIn');
+                sessionStorage.removeItem('isAdmin');
+                $('.admin-only, .user-only').hide();
+                $('.no-user').show();
             } else {
                 alert('Logout failed. Please try again.');
             }

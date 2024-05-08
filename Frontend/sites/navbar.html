@@ -1,4 +1,14 @@
-<?php session_start(); ?>
+<style>
+  .no-user {
+      display: none;
+  }
+  .user-only {
+      display: none;
+  }
+  .admin-only {
+      display: none;
+  }
+</style>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
       <a class="navbar-brand" href="home.html">WebShop</a>
@@ -13,25 +23,24 @@
                 <a class="nav-link" href="coupons.html">Coupons</a>
             </li>
         <!-- user is logged in -->
-          <?php if (isset($_SESSION["username"]) || isset($_COOKIE["username"])): ?>
-            <li class="nav-item">
+
+            <li class="nav-item user-only">
               <a class="nav-link" href="orders.html">Orders</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item user-only">
               <a class="nav-link" href="invoices.html">Invoices</a>
             </li>
-            <?php if (isset($_SESSION["isAdmin"]) && $_SESSION["isAdmin"]): ?>
-              <li class="nav-item admin-only">
+
+              <li class="nav-item admin-only" id="editProducts">
                 <a class="nav-link" href="editproducts.html"><b>Edit Products</b></a>
               </li>
-              <li class="nav-item admin-only">
+              <li class="nav-item admin-only" id="editCustomers">
                 <a class="nav-link" href="editcustomers.html"><b>Manage Customers</b></a>
               </li>
-              <li class="nav-item admin-only">
+              <li class="nav-item admin-only" id="editCoupons">
                 <a class="nav-link" href="editcoupons.html"><b>Manage Coupons</b></a>
               </li>
-            <?php endif; ?>
-          <?php endif; ?>
+
           </div>
     <!-- right side navbar -->
           <div class="navbar-nav">
@@ -42,25 +51,25 @@
                 </form>
             </li>
         <!-- user is not logged in -->
-        <?php if (!isset($_SESSION["username"]) && !isset($_COOKIE["username"])): ?>
+
             <li class="nav-item">
-                <a class="nav-link" href="login.html">Login</a>
+                <a class="nav-link no-user" href="login.html">Login</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="register.html">Register</a>
+                <a class="nav-link no-user" href="register.html">Register</a>
             </li>
-          <?php endif; ?>
+
         <!-- user is logged in -->
-          <?php if (isset($_SESSION["username"]) || isset($_COOKIE["username"])): ?>
-            <li class="nav-item">
+
+            <li class="nav-item user-only">
             <a class="nav-link" href="#" onclick="event.preventDefault(); logout();">Logout</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item user-only">
               <a class="nav-link" href="account.html">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7.753 18.305c-.261-.586-.789-.991-1.871-1.241-2.293-.529-4.428-.993-3.393-2.945 3.145-5.942.833-9.119-2.489-9.119-3.388 0-5.644 3.299-2.489 9.119 1.066 1.964-1.148 2.427-3.393 2.945-1.084.25-1.608.658-1.867 1.246-1.405-1.723-2.251-3.919-2.251-6.31 0-5.514 4.486-10 10-10s10 4.486 10 10c0 2.389-.845 4.583-2.247 6.305z"/></svg>
               </a>
             </li>
-          <?php endif; ?>
+
         <!-- always available -->
           <li class="nav-item">
               <a class="nav-link" href="bag.html">
@@ -71,3 +80,5 @@
       </div>
   </div>
 </nav>
+<script>
+</script>
