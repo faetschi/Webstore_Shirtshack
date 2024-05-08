@@ -2,8 +2,10 @@
 <html>
 <head>
     <title>Register Page</title>
-    <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="../js/controller.js"></script>
     <style>
         .container {
             display: flex;
@@ -14,7 +16,7 @@
             padding-top: 40px;
         }
         .form-control {
-        width: 100%; /* Triple the width of the form controls */
+        width: 100%;
     }
     </style>
 </head>
@@ -22,7 +24,18 @@
     </div><div class="container">
         <h1>Register</h1>
         
-        <form>
+        <form onsubmit="event.preventDefault(); register();">
+            <div class="form-group">
+                <label for="salutations">Salutations:</label>
+                <select class="form-control" id="salutations" name="salutations">
+                    <option value="">Select Salutation</option>
+                    <option value="Mr.">Mr.</option>
+                    <option value="Mrs.">Mrs.</option>
+                    <option value="Ms.">Ms.</option>
+                    <option value="Dr.">Dr.</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="firstname">First Name:</label>
                 <input type="text" class="form-control" id="firstname" name="firstname" required>
@@ -37,6 +50,11 @@
                 <label for="email">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
+
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
             
             <div class="form-group">
                 <label for="password">Password:</label>
@@ -48,13 +66,6 @@
                 <input type="password" class="form-control" id="repassword" name="repassword" required>
             </div>
             
-            <div class="form-group">
-                <label for="phone">Phone Number:</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" required>
-                </div>
-            </div>
-
             <div class="form-group">
                 <label for="street">Street:</label>
                 <input type="text" class="form-control" id="street" name="street" required>
@@ -69,21 +80,18 @@
                 <label for="zip">ZIP Code:</label>
                 <input type="text" class="form-control" id="zip" name="zip" required>
             </div>
+
             <div class="form-group">
-                <label for="state">State:</label>
-                <select class="form-control" id="state" name="state">
-                    <option value="">Select State</option>
-                    <option value="AL">Austria</option>
-                    <option value="AK">Germany</option>
-                    <option value="AK">Switzerland</option>
+                <label for="payment">Payment Option:</label>
+                <select class="form-control" id="payment" name="payment">
+                    <option value="">Select your Payment Option</option>
+                    <option value="Credit">Credit Card</option>
+                    <option value="Monthly">Monthly Invoice</option>
                 </select>
             </div>
             
             <button type="submit" class="btn btn-primary">Register</button>
         </form>
     </div>
-    
-    <!-- Include Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
