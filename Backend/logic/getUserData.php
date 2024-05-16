@@ -1,5 +1,5 @@
 <?php
-include("dbaccess.php");
+include("../config/dbaccess.php");
 
 $conn = connectToDatabase();
 

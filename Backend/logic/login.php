@@ -1,6 +1,6 @@
 <?php
 // Include your database connection file here
-include("dbaccess.php");
+include("../config/dbaccess.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json_str = file_get_contents('php://input');
@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // TODO DATABASE VALIDATION
     // validate user credential w db here (when login valid, do the rest)
-
+    
     // login valid? start a session
     session_start();
     // check if user is admin

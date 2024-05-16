@@ -2,7 +2,7 @@
 // TODO: In allen includes() einbinden, checkt ob remember me gesetzt ist, dann loggt er user ein
  
 // Include your database connection file here
-include("dbaccess.php");
+include("../config/dbaccess.php");
 
 // Check if the remember cookie exists
 if(isset($_COOKIE["remember"])) {

@@ -1,8 +1,8 @@
 <?php
-include("../models/customer.php");
+include_once("../models/customer.php");
 include("dbaccess.php");
 
-class DataHandler {
+class DataHandler_Customer {
     private $conn;
 
     function __construct() {
@@ -44,12 +44,41 @@ class DataHandler {
         return null;
     }
 
-    public function updateCustomer($customer) {
-        $sql = "INSERT INTO customers (username, password, email, street, city, zip, payment_option) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    public function queryCustomerByEmail($email) {
+        foreach ($this->queryCustomers() as $val) {
+            if ($val->email == $email) {
+                return $val;
+            }
+        }
     
+        return null;
+    }
+
+    public function createCustomer($customer) {
+        // Check if a customer with the same email already exists
+        if ($this->queryCustomerByEmail($customer->email) !== null) {
+            return array("status" => "email_exists");
+        }
+        // prepared statements = SQL injection safe
+        $sql = "INSERT INTO customers (username, password, email, street, city, zip, payment_option) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("sssssss", $customer->username, $customer->password, $customer->email, $customer->street, $customer->city, $customer->zip, $customer->payment_option);
+        
+        if ($stmt->execute()) {
+            return array("status" => "success");
+        } else {
+            return array("status" => "error");
+        }
+    }
     
+    public function updateCustomer($customer) {
+        // prepared statements = SQL injection safe
+        $sql = "UPDATE customers SET password = ?, email = ?, street = ?, city = ?, zip = ?, payment_option = ? WHERE username = ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("sssssss", $customer->password, $customer->email, $customer->street, $customer->city, $customer->zip, $customer->payment_option, $customer->username);
+        
         if ($stmt->execute()) {
             return true;
         } else {

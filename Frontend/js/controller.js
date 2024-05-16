@@ -74,32 +74,41 @@ function register() {
     }
 
     $.ajax({
-        url: '../../Backend/logic/register.php',
+        url: '../../Backend/config/serviceHandler.php',
         type: 'POST',
         data: JSON.stringify({
-            salutations: salutations,
-            firstname: firstname,
-            lastname: lastname,
-            email: email,
-            username: username,
-            password: password,
-            street: street,
-            city: city,
-            zip: zip,
-            payment: payment
+            // every front end request needs to have these 3 parameters
+            logicComponent: 'createCustomer',
+            method: 'handleRequest',
+            param: {
+                salutations: salutations,
+                firstname: firstname,
+                lastname: lastname,
+                email: email,
+                username: username,
+                password: password,
+                street: street,
+                city: city,
+                zip: zip,
+                payment: payment
+            }
         }),
+        dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log(response);
-            if (response.status == 'Registered') {
-                alert('Registration successful. You can now log in.');
+            console.log(response)
+            console.log(typeof response, typeof response.status);
+            if (response.status === 'success') {
                 window.location.href = '../sites/login.html';
+            } else  if (response.status === 'email_exists') {
+                alert('A customer with this email already exists. Please use a different email.');
             } else {
                 alert('Registration failed. Please try again.');
             }
         },
-        error: function (textStatus, errorThrown) {
+        error: function (jqXHR, textStatus, errorThrown) {
             console.error('Error registering.', textStatus, errorThrown);
+            console.error('Response:', jqXHR.responseText);
         }
     });
 }

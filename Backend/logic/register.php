@@ -1,5 +1,6 @@
 <?php
-include("dbaccess.php");
+include("updateUserData.php");
+include_once("../config/dataHandler_Customer.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json_str = file_get_contents('php://input');
@@ -17,39 +18,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $payment = isset($json_obj["payment"]) ? $json_obj["payment"] : null;
 
     // TODO: Add registration logic
-    
+    $updateUserData = new updateUserData();
 
-    // If the registration is successful
-    if (true) { // Replace with condition
-        // Start a session and set some session variables
-        session_start();
-        $_SESSION["firstname"] = $firstname;
-        $_SESSION["lastname"] = $lastname;
+    // Prepare the data
+    $data = array(
+        "salutations" => $salutations,
+        "firstname" => $firstname,
+        "lastname" => $lastname,
+        "email" => $email,
+        "username" => $username,
+        "password" => $password,
+        "street" => $street,
+        "city" => $city,
+        "zip" => $zip,
+        "payment" => $payment
+    );
 
-        // Data prep
-        $data = array(
-            "status" => "Registered",
-            "salutations" => $salutations,
-            "username" => $username,
-            "email" => $email,
-            "street" => $street,
-            "city" => $city,
-            "zip" => $zip,
-            "payment" => $payment
-        );
+    // Call the handleRequest method with the user data
+    $result = $updateUserData->handleRequest($data);
 
-        // Send data to frontend
-        header('Content-Type: application/json');
-        echo json_encode($data);
-    } else {
-        
-        $data = array(
-            "status" => "RegistrationFailed"
-        );
-
-        
-        header('Content-Type: application/json');
-        echo json_encode($data);
-    }
+    // Send back the result to controller.js
+    header('Content-Type: application/json');
+    echo json_encode($result);
 }
 ?>
