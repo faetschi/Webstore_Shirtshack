@@ -34,16 +34,6 @@ class DataHandler_Customer {
         return null;
     }
 
-    public function queryCustomerByUsername($username) {
-        foreach ($this->queryCustomers() as $val) {
-            if ($val->username == $username) {
-                return $val;
-            }
-        }
-
-        return null;
-    }
-
     public function queryCustomerByEmail($email) {
         foreach ($this->queryCustomers() as $val) {
             if ($val->email == $email) {
@@ -54,16 +44,34 @@ class DataHandler_Customer {
         return null;
     }
 
+    public function queryCustomerByUsername($username) {
+        $sql = "SELECT * FROM customers WHERE username = ?";
+        $stmt = $this->conn->prepare($sql);
+    
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $customer = $result->fetch_assoc();
+    
+        return $customer;
+    }
+
     public function createCustomer($customer) {
-        // Check if a customer with the same email already exists
+        // check if a customer with the same username already exists
+        if ($this->queryCustomerByUsername($customer->username) !== null) {
+            return array("status" => "username_exists");
+        }
+        // check if a customer with the same email already exists
         if ($this->queryCustomerByEmail($customer->email) !== null) {
             return array("status" => "email_exists");
         }
-        // prepared statements = SQL injection safe
+        // hash the password
+        $hashedPassword = password_hash($customer->password, PASSWORD_DEFAULT);
+        // prep statements = SQL injection safe
         $sql = "INSERT INTO customers (username, password, email, street, city, zip, payment_option) VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssssss", $customer->username, $customer->password, $customer->email, $customer->street, $customer->city, $customer->zip, $customer->payment_option);
+        $stmt->bind_param("sssssss", $customer->username, $hashedPassword, $customer->email, $customer->street, $customer->city, $customer->zip, $customer->payment_option);
         
         if ($stmt->execute()) {
             return array("status" => "success");
@@ -73,7 +81,7 @@ class DataHandler_Customer {
     }
     
     public function updateCustomer($customer) {
-        // prepared statements = SQL injection safe
+        // prep statements = SQL injection safe
         $sql = "UPDATE customers SET password = ?, email = ?, street = ?, city = ?, zip = ?, payment_option = ? WHERE username = ?";
         
         $stmt = $this->conn->prepare($sql);

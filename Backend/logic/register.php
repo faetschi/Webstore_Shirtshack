@@ -17,8 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $zip = isset($json_obj["zip"]) ? $json_obj["zip"] : null;
     $payment = isset($json_obj["payment"]) ? $json_obj["payment"] : null;
 
-    // TODO: Add registration logic
-    $updateUserData = new updateUserData();
+    $updateUserData = new createCustomer();
 
     // Prepare the data
     $data = array(

@@ -1,16 +1,12 @@
 <?php
+// server side check if user is admin
 session_start();
 
-function isAdmin() {
-    return isset($_SESSION["loggedIn"]) && $_SESSION["loggedIn"] === true && isset($_SESSION["isAdmin"]) && $_SESSION["isAdmin"] === true;
-}
+header('Content-Type: application/json');
 
-// Example usage:
-if (isAdmin()) {
-    // Allow access to admin-specific features
-    echo "You have admin privileges.";
+if (isset($_SESSION["isAdmin"]) && $_SESSION["isAdmin"]) {
+    echo json_encode(['isAdmin' => true]);
 } else {
-    // Deny access
-    echo "You do not have permission to access this feature.";
+    echo json_encode(['isAdmin' => false]);
 }
 ?>

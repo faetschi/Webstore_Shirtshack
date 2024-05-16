@@ -1,52 +1,50 @@
 <?php
-// Include your database connection file here
-include("../config/dbaccess.php");
+include_once("getCustomer.php");
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $json_str = file_get_contents('php://input');
-    $json_obj = json_decode($json_str, true);
+class login {
+    public function handleRequest($param) {
+        $username = isset($param["username"]) ? $param["username"] : null;
+        $password = isset($param["password"]) ? $param["password"] : null;
+        $remember = isset($param["remember"]) ? $param["remember"] : false;
 
-    $username = isset($json_obj["username"]) ? $json_obj["username"] : null;
-    $password = isset($json_obj["password"]) ? $json_obj["password"] : null;
-    $remember = isset($json_obj["remember"]) ? $json_obj["remember"] : false;
+        // get customer from db
+        $getCustomer = new GetCustomer();
+        $customer = $getCustomer->handleRequest($username);
 
-// TODO DATABASE VALIDATION
-    // validate user credential w db here (when login valid, do the rest)
-    
-    // login valid? start a session
-    session_start();
-    // check if user is admin
-    if ($username == "admin" && $password == "admin") {
-        $_SESSION["isAdmin"] = true;
-    } else {
-        $_SESSION["isAdmin"] = false;
+        // validate
+        if ($customer && password_verify($password, $customer['password'])) {
+            // !!The username and password are valid!!
+
+            session_start();
+            // check if user is admin
+            $_SESSION["isAdmin"] = $customer['is_Admin']; // 1 = admin, 0 = user
+
+            $_SESSION["loggedIn"] = true;
+            $_SESSION["username"] = $username;
+
+            // TODO: store the token in database, associated with the user
+            // in combination with autoLogin for remember me button
+
+            // TODO: remember button not working yet
+            // if checkbox is checked, set a cookie
+            if ($remember) {
+                setcookie("remember", time() + (86400 * 30), "/"); // 86400 = 1 day
+            }
+
+            // data prep
+            $data = array(
+                "status" => "success",
+                "username" => $username,
+                "remember" => $remember,
+                "isAdmin" => $_SESSION["isAdmin"]
+            );
+
+            return $data;
+        } else {
+            return array(
+                "status" => "error",
+                "message" => "Invalid username or password"
+            );
+        }
     }
-    $_SESSION["loggedIn"] = true;
-    $_SESSION["username"] = $username;
-    
-
-    // TODO: Store the token in your database, associated with the user
-        // in combination with autoLogin for remember me button
-    $token = bin2hex(random_bytes(24));
-
-    // TODO: remember button not working yet
-    // if checkbox is checked, set a cookie
-    if ($remember) {
-        setcookie("remember", $token, time() + (86400 * 30), "/"); // 86400 = 1 day
-    }
-
-    // data prep
-    $data = array(
-        "status" => "LoggedIn",
-        "username" => $username,
-        "remember" => $remember,
-        "isAdmin" => $_SESSION["isAdmin"]
-    );
-
-    $json_data = json_encode($data);
-
-    // send data to frontend
-    header('Content-Type: application/json');
-    echo $json_data;
 }
-?>

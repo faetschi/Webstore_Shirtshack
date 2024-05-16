@@ -26,7 +26,7 @@ function includeNavbar() {
             console.log(isAdmin);
 
             if (loggedIn === 'true') {
-                // User is logged in
+                // user is logged in
                 document.querySelectorAll('.no-user').forEach(function(element) {
                     element.style.display = 'none'; // hide elements
                 });
@@ -34,13 +34,13 @@ function includeNavbar() {
                     element.style.display = 'block'; // show elements
                 });
                 if (isAdmin === 'true') {
-                    // User is an admin
+                    // user is an admin
                     document.querySelectorAll('.admin-only').forEach(function(element) {
                         element.style.display = 'block'; 
                     });
                 }
             } else {
-                // User is not logged in
+                // user is not logged in
                 document.querySelectorAll('.no-user').forEach(function(element) {
                     element.style.display = 'block'; 
                 });
@@ -96,13 +96,15 @@ function register() {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log(response)
-            console.log(typeof response, typeof response.status);
+            console.log(response) // debug
             if (response.status === 'success') {
                 window.location.href = '../sites/login.html';
-            } else  if (response.status === 'email_exists') {
-                alert('A customer with this email already exists. Please use a different email.');
-            } else {
+            } else if (response.status === 'email_exists') {
+                alert('A customer with this email already exists.');
+            } else if (response.status === 'username_exists') {
+                alert('A customer with this username already exists.');
+            }
+             else {
                 alert('Registration failed. Please try again.');
             }
         },
@@ -119,27 +121,35 @@ function login() {
     var remember = $("#remember").is(":checked");
 
     $.ajax({
-        url: '../../Backend/logic/login.php',
+        url: '../../Backend/config/serviceHandler.php',
         type: 'POST',
         data: JSON.stringify({
-            username: username,
-            password: password,
-            remember: remember
+            // every front end request needs to have these 3 parameters
+            logicComponent: 'login',
+            method: 'handleRequest',
+            param: {
+                username: username,
+                password: password,
+                remember: remember
+            }
         }),
+        dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log(response);
-            if (response.status == 'LoggedIn') {
-                // Store user details in session storage
+            console.log(response); // debug
+            if (response.status == 'success') {
+                // store user details in session storage
                 sessionStorage.setItem('loggedIn', 'true');
                 sessionStorage.setItem('isAdmin', response.isAdmin ? 'true' : 'false');
-                // Redirect to home page or wherever needed
+                sessionStorage.setItem('username', response.username);
+
                 window.location.href = '../sites/home.html';
             } else {
                 alert('Login failed. Please try again.');
             }
         },
         error: function (textStatus, errorThrown) {
+            alert('Login failed. Please try again.');
             console.error('Error logging in.', textStatus, errorThrown);
         }
     });
@@ -156,6 +166,7 @@ function logout() {
             if (response.status == 'LoggedOut') {
                 sessionStorage.removeItem('loggedIn');
                 sessionStorage.removeItem('isAdmin');
+                sessionStorage.removeItem('username');
                 $('.admin-only, .user-only').hide();
                 $('.no-user').show();
             } else {
@@ -169,8 +180,24 @@ function logout() {
     });
 }
 
+function checkIsAdmin() {
+    $.ajax({
+        url: '../../Backend/logic/isAdmin.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.isAdmin !== true) {
+                window.location.href = '../sites/home.html';
+            } else {
 
-
+            }
+        },
+        error: function(textStatus, errorThrown) {
+            console.error('Error checking admin status.', textStatus, errorThrown);
+            alert('Error checking admin status. Please try again.');
+        }
+    });
+}
 
 function includes() {
     includeNavbar();

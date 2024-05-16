@@ -29,8 +29,9 @@ class createCustomer
             return array("status" => "success", "message" => "User registered successfully");
         } elseif ($result['status'] === 'email_exists') {
             return array("status" => "email_exists", "message" => "A customer with this email already exists.");
+        } elseif ($result['status'] === 'username_exists') {
+            return array("status" => "username_exists", "message" => "A customer with this username already exists.");
         } else {
-            return array("status" => "error", "message" => "Error registering user");
-        }
+            return array("status" => "error", "message" => "Error registering user");}
     }
 }
