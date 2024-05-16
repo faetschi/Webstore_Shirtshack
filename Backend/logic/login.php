@@ -29,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // in combination with autoLogin for remember me button
     $token = bin2hex(random_bytes(24));
 
+    // TODO: remember button not working yet
     // if checkbox is checked, set a cookie
     if ($remember) {
         setcookie("remember", $token, time() + (86400 * 30), "/"); // 86400 = 1 day
