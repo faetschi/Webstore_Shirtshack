@@ -217,11 +217,11 @@ function loadUserData() {
         }),
         contentType: 'application/json',
         success: function(response) {
-            // Check if the username was retrieved successfully
+            // check if the username was retrieved successfully
             if (response.username) {
                 var username = response.username;
 
-                // Second AJAX call to load the user data
+                // second AJAX call to load the user data
                 $.ajax({
                     url: '../../Backend/config/serviceHandler.php',
                     type: 'POST',
@@ -264,47 +264,6 @@ function loadUserData() {
         }
     });
 }
-
-/*
-function loadUserData() {
-    var username = $('#username').val();
-
-    $.ajax({
-        url: '../../Backend/config/serviceHandler.php',
-        type: 'POST',
-        dataType: 'json',
-        data: JSON.stringify({
-            logicComponent: 'getCustomer',
-            method: 'handleRequest',
-            param: {
-                username: username,
-            }
-        }),
-        contentType: 'application/json',
-        success: function(response) {
-            if (response.status === 'success') {
-                var data = response.data;
-                $('#salutations').val(data.salutations);
-                $('#firstname').val(data.firstname);
-                $('#lastname').val(data.lastname);
-                $('#email').val(data.email);
-                $('#username').val(data.username);
-                $('#street').val(data.street);
-                $('#city').val(data.city);
-                $('#zip').val(data.zip);
-                $('#payment').val(data.payment);
-            } else {
-                console.error('Error loading user data.', response.message);
-                alert('Error loading user data. Please try again.');
-            }
-        },
-        error: function(textStatus, errorThrown) {
-            console.error('Error loading user data.', textStatus, errorThrown);
-            alert('Error loading user data. Please try again.');
-        }
-    });
-}
-*/
 
 function saveUserData() {
     var salutations = $('#salutations').val();
