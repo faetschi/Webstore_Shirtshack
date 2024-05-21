@@ -17,7 +17,7 @@ class DataHandler_Customer {
 
         if ($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
-                array_push($res, new Customer($row["id"], $row["username"], $row["password"], $row["email"], $row["street"], $row["city"], $row["zip"], $row["payment_option"]));
+                array_push($res, new Customer($row["id"], $row["salutations"], $row["firstname"], $row["lastname"], $row["username"], $row["password"], $row["email"], $row["street"], $row["city"], $row["zip"], $row["payment_option"]));
             }
         }
 
@@ -68,15 +68,15 @@ class DataHandler_Customer {
         // hash the password
         $hashedPassword = password_hash($customer->password, PASSWORD_DEFAULT);
         // prep statements = SQL injection safe
-        $sql = "INSERT INTO customers (username, password, email, street, city, zip, payment_option) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO customers (salutations, firstname, lastname, username, password, email, street, city, zip, payment_option) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssssss", $customer->username, $hashedPassword, $customer->email, $customer->street, $customer->city, $customer->zip, $customer->payment_option);
+        $stmt->bind_param("ssssssssss", $customer->salutations, $customer->firstname, $customer->lastname, $customer->username, $hashedPassword, $customer->email, $customer->street, $customer->city, $customer->zip, $customer->payment_option);
         
         if ($stmt->execute()) {
             return array("status" => "success");
         } else {
-            return array("status" => "error");
+            return array("status" => "error", "message" => $this->conn->error);
         }
     }
     
@@ -94,4 +94,5 @@ class DataHandler_Customer {
             return false;
         }
     }
+    
 }

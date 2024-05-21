@@ -14,6 +14,9 @@ class createCustomer
     {
         $currentCustomer = new Customer(
             null, // db will auto-increment this value
+            $data['salutations'],
+            $data['firstname'],
+            $data['lastname'],
             $data['username'],
             $data['password'],
             $data['email'],
@@ -32,6 +35,7 @@ class createCustomer
         } elseif ($result['status'] === 'username_exists') {
             return array("status" => "username_exists", "message" => "A customer with this username already exists.");
         } else {
-            return array("status" => "error", "message" => "Error registering user");}
+            return array("status" => "error", "message" => $result['message']);
+        }
     }
 }

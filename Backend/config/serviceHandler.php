@@ -1,6 +1,6 @@
 <?php
 // redirects logic components to the front end ajax call
-// handles all requests: GET and POST
+// handles all requests: POST
 $param = "";
 $method = "";
 $logicComponent = "";

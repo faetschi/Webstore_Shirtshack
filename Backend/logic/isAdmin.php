@@ -1,12 +1,18 @@
 <?php
-// server side check if user is admin
-session_start();
+class isAdmin {
+    public function handleRequest() {
+        session_start();
 
-header('Content-Type: application/json');
-
-if (isset($_SESSION["isAdmin"]) && $_SESSION["isAdmin"]) {
-    echo json_encode(['isAdmin' => true]);
-} else {
-    echo json_encode(['isAdmin' => false]);
+        if (isset($_SESSION["isAdmin"]) && $_SESSION["isAdmin"] == 1) {
+            return array(
+                "status" => "success",
+                "isAdmin" => true
+            );
+        } else {
+            return array(
+                "status" => "error",
+                "isAdmin" => false
+            );
+        }
+    }
 }
-?>

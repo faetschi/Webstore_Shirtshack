@@ -8,7 +8,21 @@ class GetCustomer {
         $this->dh = new DataHandler_Customer();
     }
 
-    public function handleRequest($username) {
-        return $this->dh->queryCustomerByUsername($username);
+    public function handleRequest($param) {
+        $username = $param['username'];
+        $result = $this->dh->queryCustomerByUsername($username);
+        
+        if ($result) {
+            return array(
+                'status' => 'success',
+                'message' => 'Customer data retrieved successfully',
+                'data' => $result
+            );
+        } else {
+            return array(
+                'status' => 'error',
+                'message' => 'Error retrieving customer data'
+            );
+        }
     }
 }

@@ -1,5 +1,5 @@
 <?php
-include("updateUserData.php");
+/*
 include_once("../config/dataHandler_Customer.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -40,4 +40,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header('Content-Type: application/json');
     echo json_encode($result);
 }
+*/
 ?>

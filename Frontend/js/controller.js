@@ -2,15 +2,8 @@ $(document).ready(function () {
     includes();
 });
 
-function getCookie(name) {
-    var nameEQ = name + "="; // Construct the cookie name with an equal sign
-    var ca = document.cookie.split(';'); // Split the cookie string into an array of individual cookies
-    for (var i = 0; i < ca.length; i++) { // Loop through each cookie
-        var c = ca[i]; // Get the current cookie
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length); // Trim leading spaces
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length); // If the cookie name matches the one we're looking for, return its value
-    }
-    return null; // If the cookie isn't found, return null
+function includes() {
+    includeNavbar();
 }
 
 function includeNavbar() {
@@ -18,12 +11,9 @@ function includeNavbar() {
         url: '../sites/navbar.html',
         type: 'GET',
         success: function (response) {
-            $('#navbarContainer').html(response);
-            var remember = getCookie("remember");
-            var loggedIn = sessionStorage.getItem('loggedIn');
-            var isAdmin = sessionStorage.getItem('isAdmin');
-            console.log(loggedIn);
-            console.log(isAdmin);
+            $('#navbarContainer').html(response); 
+            var loggedIn = sessionStorage.getItem('loggedIn') || localStorage.getItem('loggedIn');
+            var isAdmin = sessionStorage.getItem('isAdmin') || localStorage.getItem('isAdmin');
 
             if (loggedIn === 'true') {
                 // user is logged in
@@ -139,10 +129,15 @@ function login() {
             console.log(response); // debug
             if (response.status == 'success') {
                 // store user details in session storage
-                sessionStorage.setItem('loggedIn', 'true');
-                sessionStorage.setItem('isAdmin', response.isAdmin ? 'true' : 'false');
-                sessionStorage.setItem('username', response.username);
-
+                if (remember) {
+                    localStorage.setItem('loggedIn', 'true');
+                    localStorage.setItem('isAdmin', response.isAdmin ? 'true' : 'false');
+                    localStorage.setItem('username', response.username);
+                } else {
+                    sessionStorage.setItem('loggedIn', 'true');
+                    sessionStorage.setItem('isAdmin', response.isAdmin ? 'true' : 'false');
+                    sessionStorage.setItem('username', response.username);
+                }
                 window.location.href = '../sites/home.html';
             } else {
                 alert('Login failed. Please try again.');
@@ -158,15 +153,19 @@ function login() {
 
 function logout() {
     $.ajax({
-        url: '../../Backend/logic/logout.php',
-        type: 'GET',
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'logout',
+            method: 'handleRequest',
+            param: {}
+        }),
         contentType: 'application/json',
         success: function (response) {
             console.log(response);
             if (response.status == 'LoggedOut') {
-                sessionStorage.removeItem('loggedIn');
-                sessionStorage.removeItem('isAdmin');
-                sessionStorage.removeItem('username');
+                sessionStorage.clear();
+                localStorage.clear();
                 $('.admin-only, .user-only').hide();
                 $('.no-user').show();
             } else {
@@ -182,9 +181,15 @@ function logout() {
 
 function checkIsAdmin() {
     $.ajax({
-        url: '../../Backend/logic/isAdmin.php',
-        type: 'GET',
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
         dataType: 'json',
+        data: JSON.stringify({
+            logicComponent: 'isAdmin',
+            method: 'handleRequest',
+            param: {}
+        }),
+        contentType: 'application/json',
         success: function(response) {
             if (response.isAdmin !== true) {
                 window.location.href = '../sites/home.html';
@@ -199,6 +204,117 @@ function checkIsAdmin() {
     });
 }
 
-function includes() {
-    includeNavbar();
+function loadUserData() {
+    // First AJAX call to get the username
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        dataType: 'json',
+        data: JSON.stringify({
+            logicComponent: 'getUsername',
+            method: 'handleRequest',
+            param: {}
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            // Check if the username was retrieved successfully
+            if (response.username) {
+                var username = response.username;
+
+                // Second AJAX call to load the user data
+                $.ajax({
+                    url: '../../Backend/config/serviceHandler.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        logicComponent: 'getCustomer',
+                        method: 'handleRequest',
+                        param: {
+                            username: username,
+                        }
+                    }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            var data = response.data;
+                            $('#salutations').val(data.salutations);
+                            $('#firstname').val(data.firstname);
+                            $('#lastname').val(data.lastname);
+                            $('#email').val(data.email);
+                            $('#username').val(data.username);
+                            $('#street').val(data.street);
+                            $('#city').val(data.city);
+                            $('#zip').val(data.zip);
+                            $('#payment').val(data.payment_option);
+                        }
+                    },
+                    error: function(textStatus, errorThrown) {
+                        console.error('Error loading user data.', textStatus, errorThrown);
+                        alert('Error loading user data. Please try again.');
+                    }
+                });
+            } else {
+                console.error('Error getting username.', response.error);
+                alert('Error getting username. Please try again.');
+            }
+        },
+        error: function(textStatus, errorThrown) {
+            console.error('Error getting username.', textStatus, errorThrown);
+            alert('Error getting username. Please try again.');
+        }
+    });
+}
+
+/*
+function loadUserData() {
+    var username = $('#username').val();
+
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        dataType: 'json',
+        data: JSON.stringify({
+            logicComponent: 'getCustomer',
+            method: 'handleRequest',
+            param: {
+                username: username,
+            }
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success') {
+                var data = response.data;
+                $('#salutations').val(data.salutations);
+                $('#firstname').val(data.firstname);
+                $('#lastname').val(data.lastname);
+                $('#email').val(data.email);
+                $('#username').val(data.username);
+                $('#street').val(data.street);
+                $('#city').val(data.city);
+                $('#zip').val(data.zip);
+                $('#payment').val(data.payment);
+            } else {
+                console.error('Error loading user data.', response.message);
+                alert('Error loading user data. Please try again.');
+            }
+        },
+        error: function(textStatus, errorThrown) {
+            console.error('Error loading user data.', textStatus, errorThrown);
+            alert('Error loading user data. Please try again.');
+        }
+    });
+}
+*/
+
+function saveUserData() {
+    var salutations = $('#salutations').val();
+    var firstname = $('#firstname').val();
+    var lastname = $('#lastname').val();
+    var email = $('#email').val();
+    var username = $('#username').val();
+    var street = $('#street').val();
+    var city = $('#city').val();
+    var zip = $('#zip').val();
+    var payment = $('#payment').val();
+
 }

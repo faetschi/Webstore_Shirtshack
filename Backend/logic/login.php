@@ -6,31 +6,22 @@ class login {
         $username = isset($param["username"]) ? $param["username"] : null;
         $password = isset($param["password"]) ? $param["password"] : null;
         $remember = isset($param["remember"]) ? $param["remember"] : false;
-
+    
         // get customer from db
         $getCustomer = new GetCustomer();
-        $customer = $getCustomer->handleRequest($username);
-
+        $response = $getCustomer->handleRequest(array('username' => $username));
+    
         // validate
-        if ($customer && password_verify($password, $customer['password'])) {
+        if ($response['status'] == 'success' && password_verify($password, $response['data']['password'])) {
             // !!The username and password are valid!!
-
+    
             session_start();
             // check if user is admin
-            $_SESSION["isAdmin"] = $customer['is_Admin']; // 1 = admin, 0 = user
-
+            $_SESSION["isAdmin"] = $response['data']['is_Admin']; // 1 = admin, 0 = user
+    
             $_SESSION["loggedIn"] = true;
             $_SESSION["username"] = $username;
-
-            // TODO: store the token in database, associated with the user
-            // in combination with autoLogin for remember me button
-
-            // TODO: remember button not working yet
-            // if checkbox is checked, set a cookie
-            if ($remember) {
-                setcookie("remember", time() + (86400 * 30), "/"); // 86400 = 1 day
-            }
-
+    
             // data prep
             $data = array(
                 "status" => "success",
@@ -38,7 +29,7 @@ class login {
                 "remember" => $remember,
                 "isAdmin" => $_SESSION["isAdmin"]
             );
-
+    
             return $data;
         } else {
             return array(

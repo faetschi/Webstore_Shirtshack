@@ -1,6 +1,9 @@
 <?php
 class Customer {
     public $id;
+    public $salutations;
+    public $firstname;
+    public $lastname;
     public $username;
     public $password;
     public $email;
@@ -9,8 +12,11 @@ class Customer {
     public $zip;
     public $payment_option;
 
-    function __construct($id, $username, $password, $email, $street, $city, $zip, $payment_option) {
+    function __construct($id, $salutations, $firstname, $lastname, $username, $password, $email, $street, $city, $zip, $payment_option) {
         $this->id = $id;
+        $this->salutations = $salutations;
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
         $this->username = $username;
         $this->password = $password;
         $this->email = $email;
