@@ -1,5 +1,4 @@
 <?php
-include('../config/dbaccess.php');
 include('../config/dataHandler_Product.php');
 
 header('Content-Type: application/json');
