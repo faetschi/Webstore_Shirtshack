@@ -1,8 +1,7 @@
 <?php
-// MySQL database
 $servername = "localhost";
-$username = "root"; // default username: change in XAMPP if necessary
-$password = ""; // default pw: change in XAMPP if necessary
+$username = "root";
+$password = "";
 $dbname = "ShirtShack";
 
 // Create connection
@@ -12,4 +11,3 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-?>
