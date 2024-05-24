@@ -275,6 +275,7 @@ function loadUserData() {
                             $('#street').val(data.street);
                             $('#city').val(data.city);
                             $('#zip').val(data.zip);
+                            // TODO Dropdown Menu for Payment is missing
                             $('#payment').val(data.payment_option);
                         }
                     },
@@ -295,6 +296,7 @@ function loadUserData() {
     });
 }
 
+// TODO save the changes made in account.html to the db
 function saveUserData() {
     var salutations = $('#salutations').val();
     var firstname = $('#firstname').val();

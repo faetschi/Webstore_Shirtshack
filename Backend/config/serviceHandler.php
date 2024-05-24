@@ -1,17 +1,20 @@
 <?php
 // redirects logic components to the front end ajax call
-// handles all requests: POST
+// handles all requests: POST and GET
 $param = "";
 $method = "";
 $logicComponent = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $data = json_decode(file_get_contents('php://input'), true);
     // every front end request must have a logic component, method and param
     $logicComponent = $data['logicComponent'];
     $method = $data['method'];
     $param = $data['param'];
+} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $logicComponent = $_GET['logicComponent'];
+    $method = $_GET['method'];
+    $param = $_GET['param'];
 } else {
     response("POST", 400, array("status" => "error", "message" => "Invalid request method"));
     exit();
@@ -28,9 +31,9 @@ if (file_exists($logicFile)) {
 
 $result = $logic->$method($param);
 if ($result) {
-    response("POST", 200, $result);
+    response($_SERVER['REQUEST_METHOD'], 200, $result);
 } else {
-    response("POST", 400, array("status" => "error", "message" => "Error processing request"));
+    response($_SERVER['REQUEST_METHOD'], 400, array("status" => "error", "message" => "Error processing request"));
 }
 
 function response($method, $httpStatus, $data)
@@ -38,6 +41,7 @@ function response($method, $httpStatus, $data)
     header('Content-Type: application/json');
     switch ($method) {
         case "POST":
+        case "GET":
             http_response_code($httpStatus);
             echo (json_encode($data));
             break;
