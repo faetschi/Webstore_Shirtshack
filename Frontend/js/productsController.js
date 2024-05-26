@@ -56,17 +56,24 @@ function loadProducts() {
 
                 productList.empty(); 
                 
-                products.forEach(function (product) {
-                    var productCard = $(productTemplate).clone();
-                    productCard.find('.card-img-top').attr('src', 'path/to/your/image.jpg').attr('alt', product.name); 
-                    productCard.find('.card-title').text(product.name);
-                    productCard.find('.card-text').text(product.description);
-                    productCard.find('.card-price').text('Price: $' + product.price);
-                    productCard.attr('data-category', product.category_id);
-                    productCard.find('.btn').attr('data-product-id', product.id); 
-
-                    productList.append(productCard);
+                response.data.forEach(function(product) {
+                    var productItem = `
+                        <div class="col-md-4">
+                            <div class="card">
+                                <img src="/path/to/your/image.jpg" class="card-img-top" alt="${product.name}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${product.name}</h5>
+                                    <p class="card-text">${product.description}</p>
+                                    <p class="card-price">${product.price}</p>
+                                    <a href="/product/${product.id}" class="btn btn-primary">View Product</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+        
+                    productList.append(productItem);
                 });
+
                 filterProducts();
 
                 
