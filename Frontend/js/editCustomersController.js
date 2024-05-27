@@ -20,20 +20,19 @@ function loadUserDataForEdit() {
                     var row = `
                         <tr>
                             <td>${customer.id}</td>
-                            <td><input class="input-field" id="salutations-${customer.id}" value="${customer.salutations}" disabled></td>
-                            <td><input class="input-field" id="firstname-${customer.id}" value="${customer.firstname}" disabled></td>
-                            <td><input class="input-field" id="lastname-${customer.id}" value="${customer.lastname}" disabled></td>
-                            <td><input class="input-field" id="username-${customer.id}" value="${customer.username}" disabled></td>
-                            <td><input class="input-field" id="email-${customer.id}" value="${customer.email}" disabled></td>
-                            <td><input class="input-field" id="street-${customer.id}" value="${customer.street}" disabled></td>
-                            <td><input class="input-field" id="city-${customer.id}" value="${customer.city}" disabled></td>
-                            <td><input class="input-field" id="zip-${customer.id}" value="${customer.zip}" disabled></td>
-                            <td><input class="input-field" id="payment_option-${customer.id}" value="${customer.payment_option}" disabled></td>
+                            <td>${customer.salutations}</td>
+                            <td>${customer.firstname}</td>
+                            <td>${customer.lastname}</td>
+                            <td>${customer.username}</td>
+                            <td>${customer.email}</td>
+                            <td>${customer.street}</td>
+                            <td>${customer.city}</td>
+                            <td>${customer.zip}</td>
+                            <td>${customer.payment_option}</td>
                             <td>
                                 <div style="display: flex; justify-content: space-between;">
-                                    <button class="btn btn-primary btn-sm edit-btn" data-customer-id="${customer.id}" style="margin-right: 5px;">Edit</button>
-                                    <button class="btn btn-success btn-sm save-btn" data-customer-id="${customer.id}" style="display: none;">Save</button>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-customer-id="${customer.id}">Delete</button>
+                                    <button class="btn btn-success btn-sm enable-btn" data-customer-id="${customer.id}" ${customer.active == '0' ? '' : 'style="display: none;"'}>Enable</button>
+                                    <button class="btn btn-danger btn-sm disable-btn" data-customer-id="${customer.id}" ${customer.active == '1' ? '' : 'style="display: none;"'}>Disable</button>
                                 </div>
                             </td>
                         </tr>
@@ -41,19 +40,14 @@ function loadUserDataForEdit() {
                     customerList.append(row);
                 });
                 
-                $('.edit-btn').on('click', function () {
-                    var customerId = $(this).data('customer-id');
-                    editCustomer(customerId);
+                $(document).on('click', '.enable-btn', function () {
+                    var customerId = $(this).attr('data-customer-id');
+                    enableCustomer(customerId);
                 });
                 
-                $('.save-btn').on('click', function () {
-                    var customerId = $(this).data('customer-id');
-                    saveCustomer(customerId);
-                });
-                
-                $('.delete-btn').on('click', function () {
-                    var customerId = $(this).data('customer-id');
-                    deleteCustomer(customerId);
+                $(document).on('click', '.disable-btn', function () {
+                    var customerId = $(this).attr('data-customer-id');
+                    disableCustomer(customerId);
                 });
 
             } else {
@@ -68,73 +62,58 @@ function loadUserDataForEdit() {
     });
 }
 
-function editCustomer(customerId) {
-    $('#salutations-' + customerId).prop('disabled', false);
-    $('#firstname-' + customerId).prop('disabled', false);
-    $('#lastname-' + customerId).prop('disabled', false);
-    $('#username-' + customerId).prop('disabled', false);
-    $('#email-' + customerId).prop('disabled', false);
-    $('#street-' + customerId).prop('disabled', false);
-    $('#city-' + customerId).prop('disabled', false);
-    $('#zip-' + customerId).prop('disabled', false);
-    var paymentOption = $('#payment_option-' + customerId);
-    var currentOption = paymentOption.val();
-    paymentOption.replaceWith(`
-        <select class="form-control" id="payment_option-${customerId}" name="payment_option">
-            <option value="Credit" ${currentOption === 'Credit' ? 'selected' : ''}>Credit Card</option>
-            <option value="Monthly" ${currentOption === 'Monthly' ? 'selected' : ''}>Monthly Invoice</option>
-        </select>
-    `);
-
-    $('.edit-btn[data-customer-id="' + customerId + '"]').hide();
-    $('.save-btn[data-customer-id="' + customerId + '"]').show();
-}
-
-function saveCustomer(customerId) {
-    var salutations = $('#salutations-' + customerId).val();
-    var firstname = $('#firstname-' + customerId).val();
-    var lastname = $('#lastname-' + customerId).val();
-    var username = $('#username-' + customerId).val();
-    var email = $('#email-' + customerId).val();
-    var street = $('#street-' + customerId).val();
-    var city = $('#city-' + customerId).val();
-    var zip = $('#zip-' + customerId).val();
-    var payment_option = $('#payment_option-' + customerId).val();
-
-    var data = {
-        id: customerId,
-        salutations: salutations,
-        firstname: firstname,
-        lastname: lastname,
-        username: username,
-        email: email,
-        street: street,
-        city: city,
-        zip: zip,
-        payment_option: payment_option
-    }
-
+function enableCustomer(customerId) {
     $.ajax({
-        url: '../../Backend/config/serviceHandler.php',
+        url: '../../Backend/config/serviceHandler.php', // Replace with your API endpoint
         type: 'POST',
         data: JSON.stringify({
-            logicComponent: 'updateCustomer',
+            logicComponent: 'enableCustomer',
             method: 'handleRequest',
-            param: data
+            param: {
+                id: customerId
+            }
         }),
-        contentType: 'application/json',
-        success: function (response) {
-            console.log('Response from updateCustomer:', response);
+        success: function(response) {
             if (response.status === 'success') {
-                alert('Customer updated successfully');
-                loadUserDataForEdit();
+                alert('Customer enabled successfully.');
+                $(`.enable-btn[data-customer-id="${customerId}"]`).hide();
+                $(`.disable-btn[data-customer-id="${customerId}"]`).show();
             } else {
-                alert('Failed to update customer: ' + response.message);
+                console.error('Error enabling customer.', response.error);
+                alert('Error enabling customer. Please try again.');
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error('Error updating customer.', textStatus, errorThrown);
-            alert('Error updating customer. Please try again.');
+        error: function(textStatus, errorThrown) {
+            console.error('Error enabling customer.', textStatus, errorThrown);
+            alert('Error enabling customer. Please try again.');
+        }
+    });
+}
+
+function disableCustomer(customerId) {
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php', // Replace with your API endpoint
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'disableCustomer',
+            method: 'handleRequest',
+            param: {
+                id: customerId
+            }
+        }),
+        success: function(response) {
+            if (response.status === 'success') {
+                alert('Customer disabled successfully.');
+                $(`.disable-btn[data-customer-id="${customerId}"]`).hide();
+                $(`.enable-btn[data-customer-id="${customerId}"]`).show();
+            } else {
+                console.error('Error disabling customer.', response.error);
+                alert('Error disabling customer. Please try again.');
+            }
+        },
+        error: function(textStatus, errorThrown) {
+            console.error('Error disabling customer.', textStatus, errorThrown);
+            alert('Error disabling customer. Please try again.');
         }
     });
 }

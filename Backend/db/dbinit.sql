@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS customers (
     city VARCHAR(255) NOT NULL,
     zip VARCHAR(10) NOT NULL,
     payment_option ENUM('Credit', 'Monthly') NOT NULL,
-    is_Admin BOOLEAN DEFAULT FALSE
+    is_Admin BOOLEAN DEFAULT FALSE,
+    active BOOLEAN DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS categories (

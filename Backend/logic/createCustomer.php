@@ -23,7 +23,8 @@ class createCustomer
             $data['street'],
             $data['city'],
             $data['zip'],
-            $data['payment']
+            $data['payment'],
+            1 // set active to 1 by default
         );
 
         // try to insert the user data

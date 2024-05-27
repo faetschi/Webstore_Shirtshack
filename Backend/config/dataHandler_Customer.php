@@ -14,13 +14,13 @@ class DataHandler_Customer {
         $res = array();
         $sql = "SELECT * FROM customers";
         $result = $this->conn->query($sql);
-
+    
         if ($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
-                array_push($res, new Customer($row["id"], $row["salutations"], $row["firstname"], $row["lastname"], $row["username"], $row["password"], $row["email"], $row["street"], $row["city"], $row["zip"], $row["payment_option"]));
+                array_push($res, new Customer($row["id"], $row["salutations"], $row["firstname"], $row["lastname"], $row["username"], $row["password"], $row["email"], $row["street"], $row["city"], $row["zip"], $row["payment_option"], $row["active"]));
             }
         }
-
+    
         return $res;
     }
 
@@ -94,4 +94,28 @@ class DataHandler_Customer {
         }
     }
     
+    public function enableCustomer($id) {
+        $sql = "UPDATE customers SET Active = 1 WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+    
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public function disableCustomer($id) {
+        $sql = "UPDATE customers SET Active = 0 WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+    
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

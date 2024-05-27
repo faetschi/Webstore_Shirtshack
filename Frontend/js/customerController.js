@@ -96,6 +96,8 @@ function login() {
                     sessionStorage.setItem('username', response.username);
                 }
                 window.location.href = '../sites/home.html';
+            } else if (response.status == 'disabled') {
+                alert('Your account has been disabled.');
             } else {
                 alert('Login failed. Please try again.');
             }

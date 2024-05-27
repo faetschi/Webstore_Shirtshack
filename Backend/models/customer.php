@@ -11,8 +11,9 @@ class Customer {
     public $city;
     public $zip;
     public $payment_option;
+    public $active;
 
-    function __construct($id, $salutations, $firstname, $lastname, $username, $password, $email, $street, $city, $zip, $payment_option) {
+    function __construct($id, $salutations, $firstname, $lastname, $username, $password, $email, $street, $city, $zip, $payment_option, $active) { 
         $this->id = $id;
         $this->salutations = $salutations;
         $this->firstname = $firstname;
@@ -24,5 +25,6 @@ class Customer {
         $this->city = $city;
         $this->zip = $zip;
         $this->payment_option = $payment_option;
+        $this->active = $active;
     }
 }
