@@ -81,17 +81,16 @@ class DataHandler_Customer {
     }
     
     public function updateCustomer($customer) {
-        // prep statements = SQL injection safe
-        $sql = "UPDATE customers SET password = ?, email = ?, street = ?, city = ?, zip = ?, payment_option = ? WHERE username = ?";
-        
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssssss", $customer->password, $customer->email, $customer->street, $customer->city, $customer->zip, $customer->payment_option, $customer->username);
-        
-        if ($stmt->execute()) {
-            return true;
-        } else {
-            echo "Error: " . $sql . "<br>" . $this->conn->error;
-            return false;
+        $sql = "UPDATE customers SET salutations = ?, firstname = ?, lastname = ?, username = ?, email = ?, street = ?, city = ?, zip = ?, payment_option = ? WHERE id = ?";
+    
+        if($stmt = $this->conn->prepare($sql)) {
+            $stmt->bind_param("sssssssssi", $customer->salutations, $customer->firstname, $customer->lastname, $customer->username, $customer->email, $customer->street, $customer->city, $customer->zip, $customer->payment_option, $customer->id);
+    
+            if($stmt->execute()) {
+                return array("status" => "success", "message" => "Customer updated successfully.");
+            } else{
+                return array("status" => "error", "message" => "Something went wrong. Please try again later.");
+            }
         }
     }
     

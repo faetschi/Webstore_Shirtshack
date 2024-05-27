@@ -149,7 +149,7 @@ function loadUserData() {
                             $('#city').val(data.city);
                             $('#zip').val(data.zip);
                             // TODO Dropdown Menu for Payment is missing
-                            $('#payment').val(data.payment_option);
+                            $('#payment').val(data.payment);
                         }
                     },
                     error: function(textStatus, errorThrown) {
@@ -169,8 +169,7 @@ function loadUserData() {
     });
 }
 
-// TODO save the changes made in account.html to the db
-function saveUserData() {
+function saveUserDataAccount() {
     var salutations = $('#salutations').val();
     var firstname = $('#firstname').val();
     var lastname = $('#lastname').val();
@@ -179,6 +178,39 @@ function saveUserData() {
     var street = $('#street').val();
     var city = $('#city').val();
     var zip = $('#zip').val();
-    var payment = $('#payment').val();
+    var payment_option = $('#payment').val();
+
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        dataType: 'json',
+        data: JSON.stringify({
+            logicComponent: 'updateCustomer',
+            method: 'handleRequest',
+            param: {
+                salutations: salutations,
+                firstname: firstname,
+                lastname: lastname,
+                email: email,
+                username: username,
+                street: street,
+                city: city,
+                zip: zip,
+                payment_option: payment_option
+            }
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success') {
+                alert('Changes saved successfully.');
+            } else {
+                alert('Error saving changes. Please try again.');
+            }
+        },
+        error: function(textStatus, errorThrown) {
+            console.error('Error saving user data.', textStatus, errorThrown);
+            alert('Error saving user data. Please try again.');
+        }
+    });
 
 }
