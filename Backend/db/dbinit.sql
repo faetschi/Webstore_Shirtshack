@@ -41,3 +41,29 @@ INSERT INTO products (name, description, price, category_id) VALUES
 ('Graphic Dragon T-Shirt', 'A t-shirt with a cool dragon graphic.', 14.99, 2),
 ('Long Sleeve Blue Shirt', 'A comfortable long sleeve shirt in blue.', 19.99, 3),
 ('Cozy Hoodie', 'A warm and cozy hoodie.', 29.99, 4);
+
+-- Create a cart table
+CREATE TABLE IF NOT EXISTS carts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NULL, -- Nullable if you want to support non-logged in users
+    session_id VARCHAR(255) NULL, -- For tracking carts of non-logged users
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+-- Create a cart items table
+CREATE TABLE IF NOT EXISTS cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cart_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    price DECIMAL(10, 2), -- Stores the price at the time of addition to cart
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cart_id) REFERENCES carts(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- Indexes to improve performance on frequently accessed columns
+CREATE INDEX idx_cart on cart_items(cart_id);
+CREATE INDEX idx_product on cart_items(product_id);

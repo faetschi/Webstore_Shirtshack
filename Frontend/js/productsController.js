@@ -1,4 +1,7 @@
 $(document).ready(function () {
+    loadProducts();
+    updateCartCount();
+
     if (window.location.pathname.endsWith('editproducts.html')) {
         checkIsAdmin();
         loadProductsForEdit();
@@ -40,7 +43,7 @@ function loadCategoriesForForm() {
             alert('Error loading categories. Please try again.');
         }
     });
-}
+};
 
 function loadProducts() {
     $.ajax({
@@ -48,39 +51,45 @@ function loadProducts() {
         type: 'GET',
         dataType: 'json',
         success: function (response) {
-            console.log(response); 
+            console.log(response);
             if (response.status === 'success') {
                 var products = response.data;
                 var productList = $('#productList');
                 var productTemplate = $('#product-template').html();
 
-                productList.empty(); 
-                
-                response.data.forEach(function(product) {
+                productList.empty();
+
+                products.forEach(function(product) {
                     var productItem = `
-                        <div class="col-md-4">
+                        <div class="col-md-4" data-product-id="${product.id}">
                             <div class="card">
                                 <img src="/path/to/your/image.jpg" class="card-img-top" alt="${product.name}">
                                 <div class="card-body">
                                     <h5 class="card-title">${product.name}</h5>
                                     <p class="card-text">${product.description}</p>
                                     <p class="card-price">${product.price}</p>
-                                    <a href="/product/${product.id}" class="btn btn-primary">View Product</a>
+                                    <button class="btn btn-secondary add-to-cart">Add to Cart</button>
                                 </div>
                             </div>
                         </div>
                     `;
-        
+                
                     productList.append(productItem);
                 });
 
                 filterProducts();
-
                 
-                $('.btn').on('click', function () {
-                    var productId = $(this).attr('data-product-id');
-                    console.log("Add to Cart clicked for product ID: " + productId); 
-                    addToCart(productId);
+                // Add click event handler for Add to Cart buttons
+                $(document).ready(function() {
+                    // Remove any existing click event handlers from the Add to Cart buttons
+                    $('.add-to-cart').off('click');
+                
+                    // Add click event handler for Add to Cart buttons
+                    $('.add-to-cart').on('click', function() {
+                        var productId = $(this).closest('[data-product-id]').data('product-id');
+                        addToCart(productId);
+                        
+                    });
                 });
             } else {
                 alert('Failed to load products: ' + response.message);
@@ -94,16 +103,24 @@ function loadProducts() {
 }
 
 function addToCart(productId) {
-    console.log("Sending AJAX request to add product to cart with ID: " + productId); 
+    var productCard = $('[data-product-id="' + productId + '"]').closest('.col-md-4');
+    var priceText = productCard.find('.card-price').text();
+    var price = parseFloat(priceText);
+    var product = {
+        productId: productId,
+        quantity: 1,
+        price: price
+    };
+
     $.ajax({
         url: '../../Backend/logic/addToCart.php',
         type: 'POST',
-        data: JSON.stringify({ productId: productId }),
         contentType: 'application/json',
+        data: JSON.stringify(product),
         success: function (response) {
-            console.log(response); 
             if (response.status === 'success') {
-                alert('Product added to cart');
+                showNotification('Product added to cart!');
+                updateCartCount();
             } else {
                 alert('Failed to add product to cart: ' + response.message);
             }
@@ -114,6 +131,21 @@ function addToCart(productId) {
         }
     });
 }
+
+function showNotification(message) {
+    var notificationContainer = $('#notificationContainer');
+    var notification = $('<div class="alert alert-success" role="alert">' + message + '</div>');
+
+    notificationContainer.append(notification);
+
+    setTimeout(function () {
+        notification.fadeOut(function () {
+            $(this).remove();
+        });
+    }, 3000);
+}
+
+
 
 
 

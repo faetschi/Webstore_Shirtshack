@@ -1,5 +1,36 @@
 $(document).ready(function () {
     includes();
+    updateCartCount();
+
+
+    
+    //Product page
+    if (window.location.pathname.endsWith('products.html')) {
+        loadCategories();
+        loadProducts();
+
+        // event listener for search bar
+        $('#searchBar').on('keyup', function () {
+            filterProducts();
+        });
+
+        // event listener for category filter
+        $('#categoryFilter').on('change', function () {
+            filterProducts();
+        });
+    } else if (window.location.pathname.endsWith('editproducts.html')) {
+        checkIsAdmin();
+        loadProductsForEdit();
+
+        $('#createProductBtn').on('click', function () {
+            $('#addProductForm').toggle();
+        });
+
+        $('#addProductForm').on('submit', function (event) {
+            event.preventDefault();
+            addProduct();
+        });
+    }
 });
 
 
@@ -64,6 +95,11 @@ function includeNavbar() {
                     element.style.display = 'none';
                 });
             }
+            
+            // Hide cart count in cart.html
+            if (window.location.pathname.endsWith('cart.html')) {
+                $('#cart-count').hide();
+            }
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.error('Error loading navbar.', textStatus, errorThrown);
@@ -95,6 +131,25 @@ function logout() {
         },
         error: function (textStatus, errorThrown) {
             console.error('Error logging out.', textStatus, errorThrown);
+        }
+    });
+
+    
+}
+
+function updateCartCount() {
+    $.ajax({
+        url: '../../Backend/logic/getCartCount.php',
+        type: 'POST',
+        success: function (response) {
+            if (response.count !== undefined) {
+                $('#cart-count').text(response.count);
+            } else {
+                console.error('Failed to update cart count');
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error('Error updating cart count.', textStatus, errorThrown);
         }
     });
 }
