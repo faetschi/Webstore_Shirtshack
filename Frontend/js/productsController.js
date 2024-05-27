@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    //Loads products
     loadProducts();
     updateCartCount();
 
