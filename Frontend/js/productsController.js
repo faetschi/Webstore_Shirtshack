@@ -137,6 +137,15 @@ function showNotification(message) {
     var notificationContainer = $('#notificationContainer');
     var notification = $('<div class="alert alert-success" role="alert">' + message + '</div>');
 
+    notification.css({
+        'width': '300px', // adjust as needed
+        'position': 'fixed',
+        'top': '95%',
+        'left': '50%',
+        'transform': 'translate(-50%, -50%)',
+        
+    });
+
     notificationContainer.append(notification);
 
     setTimeout(function () {

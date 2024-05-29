@@ -1,6 +1,6 @@
 $(document).ready(function() {
     loadCartItems();
-    
+
     
 
     // Event listeners for increase and decrease quantity buttons
@@ -132,3 +132,28 @@ function removeFromCart(productId) {
         }
     });
 }
+
+$('#checkoutButton').click(function() {
+    createOrder(function(orderId) {
+        window.location.href = `order.html?orderId=${orderId}`;
+    });
+});
+
+function createOrder(callback) {
+    $.ajax({
+        url: '../../Backend/logic/createOrder.php', // Adjust path as necessary
+        method: 'POST',
+        data: { customerId: customerId},
+        success: function(response) {
+            if (response.status === 'success') {
+                callback(response.orderId);
+            } else {
+                console.error('Failed to create order:', response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error creating order:', status, error);
+        }
+    });
+}
+

@@ -31,6 +31,9 @@ CREATE TABLE IF NOT EXISTS products (
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
+INSERT INTO customers (username, password, email, isAdmin) VALUES
+('admin', 'admin', 'admin@admin.com', 1);
+
 INSERT INTO categories (name) VALUES
 ('Basic T-Shirts'),
 ('Graphic T-Shirts'),
@@ -68,3 +71,23 @@ CREATE TABLE IF NOT EXISTS cart_items (
 -- Indexes to improve performance on frequently accessed columns
 CREATE INDEX idx_cart on cart_items(cart_id);
 CREATE INDEX idx_product on cart_items(product_id);
+
+CREATE TABLE IF NOT EXISTS orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    total DECIMAL(10, 2) NOT NULL,
+    status ENUM('Pending', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    price DECIMAL(10, 2),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
