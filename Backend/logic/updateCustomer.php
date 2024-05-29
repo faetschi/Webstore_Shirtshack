@@ -30,6 +30,8 @@ class updateCustomer
             }
             $password = $oldCustomer->password;
 
+            $active = isset($data['active']) ? $data['active'] : 1; // Default to 1 if 'active' is not set
+
             $currentCustomer = new Customer(
                 $data['id'],
                 $data['salutations'],
@@ -41,7 +43,8 @@ class updateCustomer
                 $data['street'],
                 $data['city'],
                 $data['zip'],
-                $data['payment_option']
+                $data['payment_option'],
+                $active
             );
 
             // try to update the user data
