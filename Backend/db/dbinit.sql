@@ -31,8 +31,11 @@ CREATE TABLE IF NOT EXISTS products (
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
-INSERT INTO customers (username, password, email, isAdmin) VALUES
-('admin', 'admin', 'admin@admin.com', 1);
+INSERT INTO customers 
+(salutations, firstname, lastname, username, password, email, street, city, zip, payment_option, is_Admin, active) 
+VALUES
+('Mr.', 'John', 'Doe', 'admin', 'admin', 'admin@admin.com', '123 Admin St', 'Admin City', '12345', 'Credit', 1, 1);
+
 
 INSERT INTO categories (name) VALUES
 ('Basic T-Shirts'),
@@ -73,21 +76,24 @@ CREATE INDEX idx_cart on cart_items(cart_id);
 CREATE INDEX idx_product on cart_items(product_id);
 
 CREATE TABLE IF NOT EXISTS orders (
-    order_id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NOT NULL,
     total DECIMAL(10, 2) NOT NULL,
-    status ENUM('Pending', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending',
+    payment_option ENUM('Credit', 'Monthly') NOT NULL DEFAULT 'Credit',
+    status ENUM('Pending', 'Completed') NOT NULL DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
-    order_id INT,
-    product_id INT,
-    quantity INT,
-    price DECIMAL(10, 2),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+CREATE INDEX idx_order ON order_items(order_id);
+CREATE INDEX idx_product_order ON order_items(product_id);

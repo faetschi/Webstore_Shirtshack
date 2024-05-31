@@ -1,69 +1,67 @@
 $(document).ready(function() {
-    const orderId = new URLSearchParams(window.location.search).get('orderId');
-    if (orderId) {
-        loadOrderDetails(orderId);
-    }
-
-    $('#confirmOrder').click(function() {
-        updateOrderStatus(orderId, 'Completed');
-    });
-
-    $('#cancelOrder').click(function() {
-        updateOrderStatus(orderId, 'Cancelled');
-    });
+    createOrderAndLoadItems();
 });
 
-function loadOrderDetails(orderId) {
+function createOrderAndLoadItems() {
     $.ajax({
-        url: '../../Backend/logic/getOrder.php',
+        url: '../../Backend/logic/createOrder.php',
+        method: 'POST',
+        success: function(response) {
+            console.log('Response from createOrder.php:', response); // Add this line for debugging
+            if (response.status === 'success') {
+                // Store the order ID and load order items
+                const orderId = response.order_id;
+                loadOrderItems(orderId);
+            } else {
+                console.error('Failed to create order:', response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error creating order:', status, error);
+            console.log('Server response:', xhr.responseText);
+        }
+    });
+}
+
+function loadOrderItems(orderId) {
+    $.ajax({
+        url: `../../Backend/logic/getOrderSummary.php?order_id=${orderId}`,
         method: 'GET',
-        data: { orderId: orderId },
         success: function(response) {
             if (response.status === 'success') {
-                displayOrderItems(response.orderItems);
+                displayOrderItems(response.data.items);
+                updateOrderTotal(response.data.totalPrice);
             } else {
                 console.error('Failed to load order items:', response.message);
             }
         },
         error: function(xhr, status, error) {
             console.error('Error fetching order items:', status, error);
-        }
-    });
-}
-
-function updateOrderStatus(orderId, status) {
-    $.ajax({
-        url: '../../Backend/logic/updateOrderStatus.php',
-        method: 'POST',
-        data: { orderId: orderId, status: status },
-        success: function(response) {
-            if (response.status === 'success') {
-                alert('Order status updated to ' + status);
-                window.location.reload();
-            } else {
-                alert('Failed to update order status: ' + response.message);
-            }
-        },
-        error: function(xhr, status, error) {
-            alert('Error updating order status.');
+            console.log('Server response:', xhr.responseText);
         }
     });
 }
 
 function displayOrderItems(items) {
     const container = $('#orderItems');
+    const template = $('#order-item-template').html();
     container.empty();
+    console.log(items);
+
     items.forEach(item => {
-        const element = $('<div>').addClass('row').text(`${item.name}: ${item.quantity} x $${item.price}`);
+        let element = $(template);
+        element.find('.card').attr('data-product-id', item.product_id);
+        element.find('.card-img-top').attr('src', item.image).attr('alt', item.name);
+        element.find('.card-title').text(item.name);
+        element.find('.card-text').text(item.description);
+        element.find('.card-price .price-value').text(item.price);
+        element.find('.display-quantity').text(item.quantity);  // Add this line
+        element.find('.order-quantity').text(item.quantity);
         container.append(element);
     });
-    updateOrderTotal(items);
+    
 }
 
-function updateOrderTotal(items) {
-    let total = 0;
-    items.forEach(item => {
-        total += item.quantity * item.price;
-    });
-    $('#orderTotal').text(total.toFixed(2));
+function updateOrderTotal(totalPrice) {
+    $('#orderTotal').text(totalPrice.toFixed(2));
 }

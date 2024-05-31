@@ -110,5 +110,12 @@ class DataHandler_Cart {
         return 0;
     }
     
+    public function removeAllItems($cartId) {
+        $stmt = $this->conn->prepare("DELETE FROM cart_items WHERE cart_id = ?");
+        $stmt->bind_param("i", $cartId);
+        $stmt->execute();
+        return $stmt->affected_rows;
+    }
+    
     
 }

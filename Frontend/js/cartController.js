@@ -1,8 +1,6 @@
 $(document).ready(function() {
     loadCartItems();
 
-    
-
     // Event listeners for increase and decrease quantity buttons
     $('#cartItems').on('click', '.increase-qty', function() {
         let productId = $(this).closest('.card').data('product-id');
@@ -28,8 +26,16 @@ $(document).ready(function() {
             console.error("Failed to capture the product ID.");
         }
     });
-    ;
+
     updateCartCount();
+    updateCartTotal();
+
+    $('#checkoutButton').click(function() {
+        // Log current total before navigating
+        console.log("Navigating to order.html with cart total:", localStorage.getItem('cartTotal'));
+        // Redirect to the order review page
+        window.location.href = '../sites/order.html';
+    });
 });
 
 
@@ -57,6 +63,7 @@ function displayCartItems(items) {
     const container = $('#cartItems');
     const template = $('#cart-item-template').html();
     container.empty();
+    console.log(items);
 
     items.forEach(item => {
         let element = $(template);
@@ -74,12 +81,24 @@ function displayCartItems(items) {
 function updateCartTotal() {
     let total = 0;
     $('#cartItems .card').each(function() {
-        let price = parseFloat($(this).find('.card-price').text().replace('Price: $', ''));
+        let priceText = $(this).find('.card-price').text().replace('Price: $', '');
+        let price = parseFloat(priceText);
         let quantity = parseInt($(this).find('.cart-quantity').text());
-        total += price * quantity;
+
+        // Log values for debugging
+        console.log('Price:', price, 'Quantity:', quantity);
+
+        if (!isNaN(price) && !isNaN(quantity)) {
+            total += price * quantity;
+        }
     });
     $('#cartTotal').text(total.toFixed(2));
+
+    // Store the total as a string and log it
+    localStorage.setItem('cartTotal', total.toFixed(2));
+    console.log("Updated cart total in localStorage:", total.toFixed(2));
 }
+
 
 function updateQuantity(productId, change) {
     let qtyElement = $('div[data-product-id="' + productId + '"]').find('.cart-quantity');
@@ -132,28 +151,3 @@ function removeFromCart(productId) {
         }
     });
 }
-
-$('#checkoutButton').click(function() {
-    createOrder(function(orderId) {
-        window.location.href = `order.html?orderId=${orderId}`;
-    });
-});
-
-function createOrder(callback) {
-    $.ajax({
-        url: '../../Backend/logic/createOrder.php', // Adjust path as necessary
-        method: 'POST',
-        data: { customerId: customerId},
-        success: function(response) {
-            if (response.status === 'success') {
-                callback(response.orderId);
-            } else {
-                console.error('Failed to create order:', response.message);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Error creating order:', status, error);
-        }
-    });
-}
-
