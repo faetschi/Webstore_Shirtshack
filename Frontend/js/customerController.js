@@ -112,7 +112,6 @@ function login() {
 }
 
 function loadUserData() {
-    // First AJAX call to get the username
     $.ajax({
         url: '../../Backend/config/serviceHandler.php',
         type: 'POST',
