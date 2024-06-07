@@ -90,13 +90,15 @@ function login() {
                     localStorage.setItem('loggedIn', 'true');
                     localStorage.setItem('isAdmin', response.isAdmin ? 'true' : 'false');
                     localStorage.setItem('username', response.username);
+                    localStorage.setItem('userId', response.customer_id);
                 } else {
                     sessionStorage.setItem('loggedIn', 'true');
                     sessionStorage.setItem('isAdmin', response.isAdmin ? 'true' : 'false');
                     sessionStorage.setItem('username', response.username);
+                    sessionStorage.setItem('userId', response.customer_id);
                 }
                 window.location.href = '../sites/home.html';
-            } else if (response.status == 'disabled') {
+            } else if (response.status === 'disabled') {
                 alert('Your account has been disabled.');
             } else {
                 alert('Login failed. Please try again.');
