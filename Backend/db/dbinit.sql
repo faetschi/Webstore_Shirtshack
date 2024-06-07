@@ -97,3 +97,11 @@ CREATE TABLE IF NOT EXISTS order_items (
 
 CREATE INDEX idx_order ON order_items(order_id);
 CREATE INDEX idx_product_order ON order_items(product_id);
+
+CREATE TABLE IF NOT EXISTS coupons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(255) NOT NULL UNIQUE,
+    discount DECIMAL(10, 2) NOT NULL,
+    discount_type ENUM('Percentage', 'Fixed') NOT NULL,
+    expiration_date DATE NOT NULL
+);
