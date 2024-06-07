@@ -1,12 +1,11 @@
 $(document).ready(function () {
-    //Loads products
     loadProducts();
     updateCartCount();
 
     if (window.location.pathname.endsWith('editproducts.html')) {
         checkIsAdmin();
         loadProductsForEdit();
-        loadCategoriesForForm(); // Load categories for the form
+        loadCategoriesForForm();
 
         $('#createProductBtn').on('click', function () {
             $('#addProductForm').toggle();
@@ -25,12 +24,12 @@ function loadCategoriesForForm() {
         type: 'GET',
         dataType: 'json',
         success: function (response) {
-            console.log('Response from getCategories:', response); // Debugging line
+            console.log('Response from getCategories:', response);
             if (response.status === 'success') {
                 var categories = response.data;
                 var categorySelect = $('#addProductCategory');
-                
-                categorySelect.empty(); // Clear existing options
+
+                categorySelect.empty();
                 categories.forEach(function (category) {
                     var option = $('<option></option>').attr('value', category.id).text(category.name);
                     categorySelect.append(option);
@@ -44,7 +43,7 @@ function loadCategoriesForForm() {
             alert('Error loading categories. Please try again.');
         }
     });
-};
+}
 
 function loadProducts() {
     $.ajax({
@@ -52,15 +51,13 @@ function loadProducts() {
         type: 'GET',
         dataType: 'json',
         success: function (response) {
-            console.log(response);
             if (response.status === 'success') {
                 var products = response.data;
                 var productList = $('#productList');
-                var productTemplate = $('#product-template').html();
-
                 productList.empty();
 
                 products.forEach(function(product) {
+                    var productPrice = parseFloat(product.price);
                     var productItem = `
                         <div class="col-md-4" data-product-id="${product.id}">
                             <div class="card">
@@ -68,29 +65,21 @@ function loadProducts() {
                                 <div class="card-body">
                                     <h5 class="card-title">${product.name}</h5>
                                     <p class="card-text">${product.description}</p>
-                                    <p class="card-price">${product.price}</p>
-                                    <button class="btn btn-secondary add-to-cart">Add to Cart</button>
+                                    <p class="card-price">${productPrice.toFixed(2)}</p>
+                                    <button class="btn btn-secondary add-to-cart-btn">Add to Cart</button>
                                 </div>
                             </div>
                         </div>
                     `;
-                
                     productList.append(productItem);
                 });
 
-                filterProducts();
-                
-                // Add click event handler for Add to Cart buttons
-                $(document).ready(function() {
-                    // Remove any existing click event handlers from the Add to Cart buttons
-                    $('.add-to-cart').off('click');
-                
-                    // Add click event handler for Add to Cart buttons
-                    $('.add-to-cart').on('click', function() {
-                        var productId = $(this).closest('[data-product-id]').data('product-id');
-                        addToCart(productId);
-                        
-                    });
+                $('.add-to-cart-btn').click(function() {
+                    var productId = $(this).closest('[data-product-id]').data('product-id');
+                    var productName = $(this).siblings('.card-title').text();
+                    var productPrice = parseFloat($(this).siblings('.card-price').text());
+                    var quantity = 1;
+                    addToCart(productId, productName, productPrice, quantity);
                 });
             } else {
                 alert('Failed to load products: ' + response.message);
@@ -103,34 +92,43 @@ function loadProducts() {
     });
 }
 
-function addToCart(productId) {
-    var productCard = $('[data-product-id="' + productId + '"]').closest('.col-md-4');
-    var priceText = productCard.find('.card-price').text();
-    var price = parseFloat(priceText);
-    var product = {
-        productId: productId,
-        quantity: 1,
-        price: price
-    };
+function addToCart(productId, productName, productPrice, quantity) {
+    addToSessionCart(productId, productName, productPrice, quantity);
+    updateCartCount();
+    showNotification('Product added to cart!');
 
-    $.ajax({
-        url: '../../Backend/logic/addToCart.php',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(product),
-        success: function (response) {
-            if (response.status === 'success') {
-                showNotification('Product added to cart!');
-                updateCartCount();
-            } else {
-                alert('Failed to add product to cart: ' + response.message);
-            }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error('Error adding product to cart.', textStatus, errorThrown);
-            alert('Error adding product to cart. Please try again.');
-        }
-    });
+}
+
+function addToSessionCart(productId, productName, productPrice, quantity) {
+    var cart = getSessionCart();
+    var existingItem = cart.find(item => item.productId === productId);
+    if (existingItem) {
+        existingItem.quantity += quantity;
+    } else {
+        cart.push({
+            productId: productId,
+            name: productName,
+            price: parseFloat(productPrice), // Ensured parsing here for consistency
+            quantity: quantity
+        });
+    }
+    console.log(cart);
+    sessionStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function getSessionCart() {
+    return JSON.parse(sessionStorage.getItem('cart')) || [];
+}
+
+function updateCartCount() {
+    var sessionCart = getSessionCart();
+    var count = sessionCart.reduce((total, item) => total + item.quantity, 0);
+    $('#cart-count').text(count);
+    
+}
+
+function getUserId() {
+    return sessionStorage.getItem('userId');
 }
 
 function showNotification(message) {
@@ -138,25 +136,21 @@ function showNotification(message) {
     var notification = $('<div class="alert alert-success" role="alert">' + message + '</div>');
 
     notification.css({
-        'width': '300px', // adjust as needed
+        'width': '300px',
         'position': 'fixed',
         'top': '95%',
         'left': '50%',
-        'transform': 'translate(-50%, -50%)',
-        
+        'transform': 'translate(-50%, -50%)'
     });
 
     notificationContainer.append(notification);
 
-    setTimeout(function () {
-        notification.fadeOut(function () {
+    setTimeout(function() {
+        notification.fadeOut(function() {
             $(this).remove();
         });
     }, 3000);
 }
-
-
-
 
 
 

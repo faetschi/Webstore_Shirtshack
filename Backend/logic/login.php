@@ -18,7 +18,7 @@ class login {
                 session_start();
                 // check if user is admin
                 $_SESSION["isAdmin"] = $response['data']['is_Admin']; // 1 = admin, 0 = user
-        
+                $_SESSION["customer_id"] = $response['data']['id'];
                 $_SESSION["loggedIn"] = true;
                 $_SESSION["username"] = $username;
         
@@ -27,7 +27,8 @@ class login {
                     "status" => "success",
                     "username" => $username,
                     "remember" => $remember,
-                    "isAdmin" => $_SESSION["isAdmin"]
+                    "isAdmin" => $_SESSION["isAdmin"],
+                    "customer_id" => $_SESSION["customer_id"]
                 );
         
                 return $data;
