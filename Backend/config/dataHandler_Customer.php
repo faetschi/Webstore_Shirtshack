@@ -120,17 +120,15 @@ class DataHandler_Customer {
 
     public function queryCustomerByspecificId($id) {
         $sql = "SELECT * FROM customers WHERE id = ?";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $customer = $result->fetch_object();
-        if ($customer->active == 1) {
-            return $customer;
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        } else {
+            return null;
         }
-    }
-    return null;
     }
     
 
