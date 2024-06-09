@@ -65,4 +65,31 @@ class CouponsManager {
             return array("status" => "error", "isValid" => false, "message" => "Coupon not found");
         }
     }
+
+    public function verifyVoucherCode($param) {
+        $voucherCode = $param['voucherCode'];
+        error_log("Received voucher code in CouponsManager: " . $voucherCode);  // Debugging
+        $voucherDetails = $this->dh->queryCouponByCode($voucherCode);
+        error_log("Result from DataHandler: " . json_encode($voucherDetails));  // Debugging
+    
+        if ($voucherDetails) {
+            // Convert the expirationDate from the database to a DateTime object
+            $expirationDate = new DateTime($voucherDetails['expirationDate']);
+            $today = new DateTime(); // Today's date
+    
+            // Check if the expiration date is before today
+            if ($expirationDate < $today) {
+                return array("status" => "error", "message" => "Voucher expired");
+            }
+    
+            return array(
+                "status" => "success", 
+                "discountAmount" => $voucherDetails['discountAmount'], 
+                "discountType" => $voucherDetails['discountType'],
+                "expirationDate" => $voucherDetails['expirationDate']
+            );
+        } else {
+            return array("status" => "error", "message" => "Voucher not found");
+        }
+    }
 }

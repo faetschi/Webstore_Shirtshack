@@ -112,30 +112,4 @@ $(document).ready(function() {
             }
         });
     }
-
-    function checkCoupon(couponId) {
-        $.ajax({
-            url: '../../Backend/config/serviceHandler.php',
-            type: 'POST',
-            dataType: 'json',
-            data: JSON.stringify({
-                logicComponent: 'couponsManager',
-                method: 'checkCouponValidity',
-                param: { 
-                    code: couponId
-                }
-            }),
-            contentType: 'application/json',
-            success: function(response) {
-                if (response.status === 'success' && response.isValid) {
-                    alert('Coupon is valid!');
-                } else if (response.status === 'success' && !response.isValid){
-                    alert('Coupon is invalid or expired!');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("Error checking coupon:", status, error);
-            }
-        });
-    }
 });

@@ -91,4 +91,20 @@ class DataHandler_Coupons {
             return array("status" => "error", "message" => "Something went wrong. Please try again later.");
         }
     }
+    
+    public function queryCouponByCode($couponCode) {
+        $sql = "SELECT * FROM coupons WHERE code = ?";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return array("status" => "error", "message" => "Failed to prepare statement.");
+        }
+        $stmt->bind_param("s", $couponCode);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc(); 
+        } else {
+            return null;
+        }
+    }
 }

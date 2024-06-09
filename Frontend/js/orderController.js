@@ -2,9 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadOrderDetails();
     fetchPaymentOption();
     document.getElementById('place-order-btn').addEventListener('click', submitOrder);
-    document.getElementById('applyVoucherBtn').addEventListener('click', function() {
-        applyVoucher();
-    });
+    document.getElementById('applyVoucherBtn').addEventListener('click', applyVoucher);
 });
 
 function loadOrderDetails() {
@@ -104,45 +102,66 @@ function submitOrder() {
     });
 }
 
-const vouchers = {
-    "SAVE10": {
-        description: "Save $10 on your order",
-        discount: 10 // This is a fixed amount discount
-    },
-    "10PERCENT": {
-        description: "Save 10% on your order",
-        discount: 0.10, // This represents a 10% discount
-        type: 'percent'
-    }
-};
-
 function applyVoucher() {
-    const voucherCode = document.getElementById('voucherCode').value.toUpperCase();
-    const voucher = vouchers[voucherCode];
-    if (voucher) {
-        let originalTotal = parseFloat(document.getElementById('order-total').textContent);
-        let discountAmount;
-
-        if (voucher.type === 'percent') {
-            discountAmount = originalTotal * voucher.discount;
-        } else {
-            discountAmount = voucher.discount;
+    let voucherCode = document.getElementById('voucherCode').value;
+    console.log("Applying voucher:", voucherCode);  // Debugging
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',  // Update this URL as needed
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'couponsManager',
+            method: 'verifyVoucherCode',  // This should match the method name expected by your PHP switch-case
+            param: { voucherCode: voucherCode }
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            console.log("Response from server:", response);  // Debugging
+            if (response.status === 'success' && response.discountAmount) {
+                applyDiscount(parseFloat(response.discountAmount), response.discountType);
+                // Disable the apply voucher button
+                disableApplyVoucherButton();
+            } else {
+                alert('Invalid voucher code. Please try again.');
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error("AJAX error:", textStatus, errorThrown);  // Debugging
+            alert('Error verifying voucher code. Please try again.');
         }
-
-        let newTotal = originalTotal - discountAmount;
-        document.getElementById('order-total').textContent = newTotal.toFixed(2);
-
-        updateDiscountDisplay(discountAmount, originalTotal, newTotal);
-    } else {
-        alert("Invalid voucher code.");
-    }
+    });
 }
 
-function updateDiscountDisplay(discountAmount, originalTotal, newTotal) {
-    let discountInfo = document.getElementById('discount-info');
-    discountInfo.innerHTML = `
-        <p>Original Total: $${originalTotal.toFixed(2)}</p>
-        <p>Discount Applied: -$${discountAmount.toFixed(2)}</p>
-        <p>New Total: $${newTotal.toFixed(2)}</p>
-    `;
+function disableApplyVoucherButton() {
+    let applyVoucherBtn = document.getElementById('applyVoucherBtn');
+    applyVoucherBtn.disabled = true;
+    applyVoucherBtn.style.backgroundColor = 'grey';  // Change this to match your desired style
+    applyVoucherBtn.style.cursor = 'not-allowed';  // Optional: Change the cursor to indicate it's disabled
+    applyVoucherBtn.textContent = 'Voucher Applied';  // Optional: Change the button text to indicate it's been used
+}
+
+function applyDiscount(discountAmount, discountType) {
+    console.log("Applying discount:", discountAmount, "Type:", discountType);  // Debugging
+    if (isNaN(discountAmount)) {
+        console.error("Invalid discount amount:", discountAmount);  // Debugging
+        alert('Error applying discount. Please try again.');
+        return;
+    }
+
+    let totalElement = document.getElementById('order-total');
+    let currentTotal = parseFloat(totalElement.textContent);
+    let newTotal;
+
+    if (discountType === 'Percentage') {
+        newTotal = Math.max(0, currentTotal - (currentTotal * (discountAmount / 100))).toFixed(2);
+        document.getElementById('discount-info').textContent = `Discount Applied: ${discountAmount}%`;
+    } else if (discountType === 'Fixed') {
+        newTotal = Math.max(0, currentTotal - discountAmount).toFixed(2);
+        document.getElementById('discount-info').textContent = `Discount Applied: $${discountAmount.toFixed(2)}`;
+    } else {
+        console.error("Unknown discount type:", discountType);  // Debugging
+        alert('Error applying discount. Please try again.');
+        return;
+    }
+
+    totalElement.textContent = newTotal;
 }
