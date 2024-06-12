@@ -63,7 +63,7 @@ function register() {
 }
 
 function login() {
-    var username = $('#username').val();
+    var credentials = $('#credentials').val();
     var password = $('#password').val();
     var remember = $("#remember").is(":checked");
 
@@ -75,7 +75,7 @@ function login() {
             logicComponent: 'login',
             method: 'handleRequest',
             param: {
-                username: username,
+                credentials: credentials,
                 password: password,
                 remember: remember
             }
@@ -123,11 +123,11 @@ function loadUserData() {
         }),
         contentType: 'application/json',
         success: function(response) {
-            // check if the username was retrieved successfully
+            // Check if the username was retrieved successfully
             if (response.username) {
                 var username = response.username;
 
-                // second AJAX call to load the user data
+                // Second AJAX call to load the user data based on username
                 $.ajax({
                     url: '../../Backend/config/serviceHandler.php',
                     type: 'POST',
@@ -136,7 +136,7 @@ function loadUserData() {
                         logicComponent: 'getCustomer',
                         method: 'handleRequest',
                         param: {
-                            username: username,
+                            credentials: username,  // Now using credentials, which accepts username or email
                         }
                     }),
                     contentType: 'application/json',
@@ -147,15 +147,16 @@ function loadUserData() {
                             $('#firstname').val(data.firstname);
                             $('#lastname').val(data.lastname);
                             $('#email').val(data.email);
-                            $('#username').val(data.username);
+                            $('#username').val(data.username); // Consider this field to handle both email and username if needed
                             $('#street').val(data.street);
                             $('#city').val(data.city);
                             $('#zip').val(data.zip);
-                            // TODO Dropdown Menu for Payment is missing
-                            $('#payment').val(data.payment);
+                            $('#payment').val(data.payment_option);
+                        } else {
+                            alert('Failed to load user data: ' + response.message);
                         }
                     },
-                    error: function(textStatus, errorThrown) {
+                    error: function(jqXHR, textStatus, errorThrown) {
                         console.error('Error loading user data.', textStatus, errorThrown);
                         alert('Error loading user data. Please try again.');
                     }
@@ -165,24 +166,39 @@ function loadUserData() {
                 alert('Error getting username. Please try again.');
             }
         },
-        error: function(textStatus, errorThrown) {
+        error: function(jqXHR, textStatus, errorThrown) {
             console.error('Error getting username.', textStatus, errorThrown);
             alert('Error getting username. Please try again.');
         }
     });
 }
 
-function saveUserDataAccount() {
-    var salutations = $('#salutations').val();
-    var firstname = $('#firstname').val();
-    var lastname = $('#lastname').val();
-    var email = $('#email').val();
-    var username = $('#username').val();
-    var street = $('#street').val();
-    var city = $('#city').val();
-    var zip = $('#zip').val();
-    var payment_option = $('#payment').val();
 
+function saveUserDataAccount() {
+    var currentPassword = $('#currentpassword').val();
+    var newPassword = $('#newpassword').val();
+    var renewPassword = $('#renewpassword').val();
+
+    var email = $('#email').val();
+    var zip = $('#zip').val();
+
+    // Regular expressions for validation
+    var emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+    var zipRegex = /^\d{4}$/;
+
+    if (newPassword && newPassword !== renewPassword) {
+        alert('New passwords do not match.');
+        return;
+    }
+
+    if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+    if (!zipRegex.test(zip)) {
+        alert('Please enter a valid ZIP code with exactly 4 digits.');
+        return;
+    }
     $.ajax({
         url: '../../Backend/config/serviceHandler.php',
         type: 'POST',
@@ -191,15 +207,17 @@ function saveUserDataAccount() {
             logicComponent: 'updateCustomer',
             method: 'handleRequest',
             param: {
-                salutations: salutations,
-                firstname: firstname,
-                lastname: lastname,
-                email: email,
-                username: username,
-                street: street,
-                city: city,
-                zip: zip,
-                payment_option: payment_option
+                username: $('#username').val(),  // Assuming user ID is available in the form or through session
+                currentPassword: currentPassword,
+                newPassword: newPassword,
+                salutations: $('#salutations').val(),
+                firstname: $('#firstname').val(),
+                lastname: $('#lastname').val(),
+                email: $('#email').val(),
+                street: $('#street').val(),
+                city: $('#city').val(),
+                zip: $('#zip').val(),
+                payment_option: $('#payment').val()
             }
         }),
         contentType: 'application/json',
@@ -207,13 +225,13 @@ function saveUserDataAccount() {
             if (response.status === 'success') {
                 alert('Changes saved successfully.');
             } else {
-                alert('Error saving changes. Please try again.');
+                alert(response.message || 'Error saving changes. Please try again.');
             }
         },
-        error: function(textStatus, errorThrown) {
-            console.error('Error saving user data.', textStatus, errorThrown);
-            alert('Error saving user data. Please try again.');
+        error: function(xhr, textStatus, errorThrown) {
+            console.error('Error saving user data:', textStatus, errorThrown);
+            var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error saving user data. Please try again.';
+            alert(errorMessage);
         }
     });
-
 }

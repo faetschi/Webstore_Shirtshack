@@ -3,35 +3,30 @@ include_once("getCustomer.php");
 
 class login {
     public function handleRequest($param) {
-        $username = isset($param["username"]) ? $param["username"] : null;
+        $credentials = isset($param["credentials"]) ? $param["credentials"] : null;
         $password = isset($param["password"]) ? $param["password"] : null;
         $remember = isset($param["remember"]) ? $param["remember"] : false;
-    
-        // get customer from db
+
+        // get customer from db by username or email
         $getCustomer = new GetCustomer();
-        $response = $getCustomer->handleRequest(array('username' => $username));
-    
+        $response = $getCustomer->handleRequest(array('credentials' => $credentials));
+
         // validate
         if ($response['status'] == 'success' && password_verify($password, $response['data']['password'])) {
-            // !!The username and password are valid!!
             if ($response['data']['active'] == 1) {
                 session_start();
-                // check if user is admin
-                $_SESSION["isAdmin"] = $response['data']['is_Admin']; // 1 = admin, 0 = user
+                $_SESSION["isAdmin"] = $response['data']['is_Admin'];
                 $_SESSION["customer_id"] = $response['data']['id'];
                 $_SESSION["loggedIn"] = true;
-                $_SESSION["username"] = $username;
-        
-                // data prep
-                $data = array(
+                $_SESSION["username"] = $response['data']['username']; // Ensure username is used in session
+
+                return array(
                     "status" => "success",
-                    "username" => $username,
+                    "username" => $response['data']['username'],
                     "remember" => $remember,
                     "isAdmin" => $_SESSION["isAdmin"],
                     "customer_id" => $_SESSION["customer_id"]
                 );
-        
-                return $data;
             } else {
                 return array(
                     "status" => "disabled",
@@ -41,8 +36,10 @@ class login {
         } else {
             return array(
                 "status" => "error",
-                "message" => "Invalid username or password"
+                "message" => "Invalid login credentials"
             );
         }
     }
 }
+
+?>

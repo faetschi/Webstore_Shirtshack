@@ -9,8 +9,8 @@ class GetCustomer {
     }
 
     public function handleRequest($param) {
-        $username = $param['username'];
-        $result = $this->dh->queryCustomerByUsername($username);
+        $credentials = $param['credentials'];  // Changed from 'login' to 'credentials'
+        $result = $this->dh->queryCustomerByCredentials($credentials);  // Function name also changed to match the new parameter
         
         if ($result) {
             return array(
@@ -26,3 +26,4 @@ class GetCustomer {
         }
     }
 }
+?>
