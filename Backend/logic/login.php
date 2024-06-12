@@ -1,15 +1,15 @@
 <?php
-include_once("getCustomer.php");
+include_once("customerManager.php");
 
 class login {
-    public function handleRequest($param) {
+    public function login($param) {
         $credentials = isset($param["credentials"]) ? $param["credentials"] : null;
         $password = isset($param["password"]) ? $param["password"] : null;
         $remember = isset($param["remember"]) ? $param["remember"] : false;
 
         // get customer from db by username or email
-        $getCustomer = new GetCustomer();
-        $response = $getCustomer->handleRequest(array('credentials' => $credentials));
+        $getCustomer = new CustomerManager();
+        $response = $getCustomer->getCustomer(array('credentials' => $credentials));
 
         // validate
         if ($response['status'] == 'success' && password_verify($password, $response['data']['password'])) {
