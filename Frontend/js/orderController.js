@@ -171,7 +171,6 @@ function displayOrderDetailsForCustomer() {
     const customerId = params.get('customerId');
 
     if (!customerId) {
-        alert('Customer ID is missing from the URL');
         window.location.href = '../sites/editcustomers.html';
         return;
     }
