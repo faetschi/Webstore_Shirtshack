@@ -273,6 +273,7 @@ function loadUserDataForEdit() {
                                 <div style="display: flex; justify-content: space-between;">
                                     <button class="btn btn-success btn-sm enable-btn" data-customer-id="${customer.id}" ${customer.active == '0' ? '' : 'style="display: none;"'}>Enable</button>
                                     <button class="btn btn-danger btn-sm disable-btn" data-customer-id="${customer.id}" ${customer.active == '1' ? '' : 'style="display: none;"'}>Disable</button>
+                                    <button class="btn btn-primary btn-sm view-details-btn" data-customer-id="${customer.id}">View Orders</button>
                                 </div>
                             </td>
                         </tr>
@@ -288,6 +289,11 @@ function loadUserDataForEdit() {
                 $(document).on('click', '.disable-btn', function () {
                     var customerId = $(this).attr('data-customer-id');
                     disableCustomer(customerId);
+                });
+
+                $(document).on('click', '.view-details-btn', function() {
+                    var customerId = $(this).attr('data-customer-id');
+                    window.location.href = `editorders.html?customerId=${customerId}`;
                 });
 
             } else {

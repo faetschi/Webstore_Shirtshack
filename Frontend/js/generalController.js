@@ -41,8 +41,8 @@ function checkIsAdmin() {
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify({
-            logicComponent: 'isAdmin',
-            method: 'handleRequest',
+            logicComponent: 'login',
+            method: 'isAdmin',
             param: {}
         }),
         contentType: 'application/json',

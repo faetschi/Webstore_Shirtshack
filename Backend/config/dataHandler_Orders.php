@@ -35,6 +35,28 @@ class DataHandler_Orders {
             return array("status" => "error", "message" => "Failed to place order: " . $e->getMessage());
         }
     }
+
+    public function deleteOrder($orderId) {
+        $this->conn->begin_transaction();
+    
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM order_items WHERE order_id = ?");
+            $stmt->bind_param("i", $orderId);
+            $stmt->execute();
+    
+            $stmt = $this->conn->prepare("DELETE FROM orders WHERE order_id = ?");
+            $stmt->bind_param("i", $orderId);
+            $stmt->execute();
+    
+            $this->conn->commit();
+            return array("status" => "success", "message" => "Order deleted successfully.");
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $this->conn->rollback();
+            return array("status" => "error", "message" => "Failed to delete order: " . $e->getMessage());
+        }
+    }
+
     public function fetchUserOrders($userId) {
         $sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC";
         $stmt = $this->conn->prepare($sql);
