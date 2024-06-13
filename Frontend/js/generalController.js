@@ -109,6 +109,13 @@ function includeNavbar() {
 
 }
 
+function isLoggedIn() {
+    var loggedIn = sessionStorage.getItem('loggedIn') || localStorage.getItem('loggedIn');
+    if (loggedIn !== 'true') {
+        window.location.href = 'home.html';
+    }
+}
+
 function logout() {
     $.ajax({
         url: '../../Backend/config/serviceHandler.php',
