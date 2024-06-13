@@ -165,3 +165,89 @@ function applyDiscount(discountAmount, discountType) {
 
     totalElement.textContent = newTotal;
 }
+
+function displayOrderDetailsForCustomer() {
+    const params = new URLSearchParams(window.location.search);
+    const customerId = params.get('customerId');
+
+    if (!customerId) {
+        window.location.href = '../sites/editcustomers.html';
+        return;
+    }
+    console.log(customerId);
+
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'orderManager',
+            method: 'getOrderByCustomerId',
+            param: { customerId: parseInt(customerId)}
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            const ordersContainer = $('#customerList');
+            ordersContainer.empty(); // Clear previous entries
+            if (response.status === 'success') {
+
+                $.each(response.data, function(_, order) {
+                    const orderRow = $(`
+                        <tr>
+                            <td>${order.order_id}</td>
+                            <td>$${parseFloat(order.total_price).toFixed(2)}</td>
+                            <td>${order.payment_option}</td>
+                            <td>${new Date(order.order_date).toLocaleDateString()}</td>
+                            <td>
+                                <div style="display: flex; justify-content;">
+                                    <button class="btn btn-danger btn-sm delete-btn" data-order-id="${order.order_id}">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                    ordersContainer.append(orderRow);
+                });
+
+                $(document).on('click', '.delete-btn', function () {
+                    var orderId = $(this).attr('data-order-id');
+                    deleteOrder(orderId);
+                });
+
+            } else if (response.status === 'error') {
+                alert('Failed to fetch order for customerId ' + customerId + '');
+                window.location.href = '../sites/editcustomers.html';
+            } else if (response.status === 'notfound') {
+                alert('No orders found for this customer');
+                window.location.href = '../sites/editcustomers.html';
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error('Error fetching order:', textStatus, errorThrown);
+        }
+    });
+}
+
+function deleteOrder(orderId) {
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'orderManager',
+            method: 'deleteOrderById',
+            param: { orderId: orderId }
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success') {
+                // Remove the order row from the UI
+                $('button[data-order-id="' + orderId + '"]').closest('tr').remove();
+                alert('Order deleted successfully');
+            } else {
+                alert('Failed to delete order with ID: ' + orderId);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error('Error deleting order:', textStatus, errorThrown);
+            alert('Error deleting order. Please try again.');
+        }
+    });
+}

@@ -41,8 +41,8 @@ function checkIsAdmin() {
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify({
-            logicComponent: 'isAdmin',
-            method: 'handleRequest',
+            logicComponent: 'login',
+            method: 'isAdmin',
             param: {}
         }),
         contentType: 'application/json',
@@ -107,6 +107,13 @@ function includeNavbar() {
         }
     });
 
+}
+
+function isLoggedIn() {
+    var loggedIn = sessionStorage.getItem('loggedIn') || localStorage.getItem('loggedIn');
+    if (loggedIn !== 'true') {
+        window.location.href = 'home.html';
+    }
 }
 
 function logout() {

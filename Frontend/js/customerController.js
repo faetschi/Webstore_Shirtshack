@@ -25,8 +25,8 @@ function register() {
         type: 'POST',
         data: JSON.stringify({
             // every front end request needs to have these 3 parameters
-            logicComponent: 'createCustomer',
-            method: 'handleRequest',
+            logicComponent: 'customerManager',
+            method: 'createCustomer',
             param: {
                 salutations: salutations,
                 firstname: firstname,
@@ -43,7 +43,7 @@ function register() {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log(response) // debug
+            //console.log(response) // debug
             if (response.status === 'success') {
                 window.location.href = '../sites/login.html';
             } else if (response.status === 'email_exists') {
@@ -73,7 +73,7 @@ function login() {
         data: JSON.stringify({
             // every front end request needs to have these 3 parameters
             logicComponent: 'login',
-            method: 'handleRequest',
+            method: 'login',
             param: {
                 credentials: credentials,
                 password: password,
@@ -83,7 +83,7 @@ function login() {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log(response); // debug
+            //console.log(response); // debug
             if (response.status == 'success') {
                 // store user details in session storage
                 if (remember) {
@@ -117,8 +117,8 @@ function loadUserData() {
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify({
-            logicComponent: 'getUsername',
-            method: 'handleRequest',
+            logicComponent: 'customerManager',
+            method: 'getUsername',
             param: {}
         }),
         contentType: 'application/json',
@@ -133,10 +133,10 @@ function loadUserData() {
                     type: 'POST',
                     dataType: 'json',
                     data: JSON.stringify({
-                        logicComponent: 'getCustomer',
-                        method: 'handleRequest',
+                        logicComponent: 'customerManager',
+                        method: 'getCustomer',
                         param: {
-                            credentials: username,  // Now using credentials, which accepts username or email
+                            credentials: username,
                         }
                     }),
                     contentType: 'application/json',
@@ -147,7 +147,7 @@ function loadUserData() {
                             $('#firstname').val(data.firstname);
                             $('#lastname').val(data.lastname);
                             $('#email').val(data.email);
-                            $('#username').val(data.username); // Consider this field to handle both email and username if needed
+                            $('#username').val(data.username);
                             $('#street').val(data.street);
                             $('#city').val(data.city);
                             $('#zip').val(data.zip);
@@ -204,10 +204,10 @@ function saveUserDataAccount() {
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify({
-            logicComponent: 'updateCustomer',
-            method: 'handleRequest',
+            logicComponent: 'customerManager',
+            method: 'updateCustomer',
             param: {
-                username: $('#username').val(),  // Assuming user ID is available in the form or through session
+                username: $('#username').val(),
                 currentPassword: currentPassword,
                 newPassword: newPassword,
                 salutations: $('#salutations').val(),
@@ -235,3 +235,134 @@ function saveUserDataAccount() {
         }
     });
 }
+
+// Admin functions
+
+function loadUserDataForEdit() {
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        dataType: 'json',
+        data: JSON.stringify({
+            logicComponent: 'customerManager',
+            method: 'getAllCustomers',
+            param: {}
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success') {
+                var customers = response.data;
+                var customerList = $('#customerList');
+
+                customerList.empty();
+
+                $.each(customers, function(_, customer) {
+                    var row = `
+                        <tr>
+                            <td>${customer.id}</td>
+                            <td>${customer.salutations}</td>
+                            <td>${customer.firstname}</td>
+                            <td>${customer.lastname}</td>
+                            <td>${customer.username}</td>
+                            <td>${customer.email}</td>
+                            <td>${customer.street}</td>
+                            <td>${customer.city}</td>
+                            <td>${customer.zip}</td>
+                            <td>${customer.payment_option}</td>
+                            <td>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <button class="btn btn-success btn-sm enable-btn" data-customer-id="${customer.id}" ${customer.active == '0' ? '' : 'style="display: none;"'}>Enable</button>
+                                    <button class="btn btn-danger btn-sm disable-btn" data-customer-id="${customer.id}" ${customer.active == '1' ? '' : 'style="display: none;"'}>Disable</button>
+                                    <button class="btn btn-primary btn-sm view-details-btn" data-customer-id="${customer.id}">View Orders</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    customerList.append(row);
+                });
+                
+                $(document).on('click', '.enable-btn', function () {
+                    var customerId = $(this).attr('data-customer-id');
+                    enableCustomer(customerId);
+                });
+                
+                $(document).on('click', '.disable-btn', function () {
+                    var customerId = $(this).attr('data-customer-id');
+                    disableCustomer(customerId);
+                });
+
+                $(document).on('click', '.view-details-btn', function() {
+                    var customerId = $(this).attr('data-customer-id');
+                    window.location.href = `editorders.html?customerId=${customerId}`;
+                });
+
+            } else {
+                console.error('Error getting customers.', response.error);
+                alert('Error getting customers. Please try again.');
+            }
+        },
+        error: function(textStatus, errorThrown) {
+            console.error('Error getting customers.', textStatus, errorThrown);
+            alert('Error getting customers. Please try again.');
+        }
+    });
+}
+
+function enableCustomer(customerId) {
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'customerManager',
+            method: 'enableCustomer',
+            param: {
+                id: customerId
+            }
+        }),
+        success: function(response) {
+            if (response.status === 'success') {
+                alert('Customer enabled successfully.');
+                $(`.enable-btn[data-customer-id="${customerId}"]`).hide();
+                $(`.disable-btn[data-customer-id="${customerId}"]`).show();
+            } else {
+                console.error('Error enabling customer.', response.error);
+                alert('Error enabling customer. Please try again.');
+            }
+        },
+        error: function(textStatus, errorThrown) {
+            console.error('Error enabling customer.', textStatus, errorThrown);
+            alert('Error enabling customer. Please try again.');
+        }
+    });
+}
+
+function disableCustomer(customerId) {
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'customerManager',
+            method: 'disableCustomer',
+            param: {
+                id: customerId
+            }
+        }),
+        success: function(response) {
+            if (response.status === 'success') {
+                alert('Customer disabled successfully.');
+                $(`.disable-btn[data-customer-id="${customerId}"]`).hide();
+                $(`.enable-btn[data-customer-id="${customerId}"]`).show();
+            } else {
+                console.error('Error disabling customer.', response.error);
+                alert('Error disabling customer. Please try again.');
+            }
+        },
+        error: function(textStatus, errorThrown) {
+            console.error('Error disabling customer.', textStatus, errorThrown);
+            alert('Error disabling customer. Please try again.');
+        }
+    });
+}
+
+
+

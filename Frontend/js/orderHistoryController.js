@@ -112,5 +112,25 @@ function toggleDetails(index, orderId) {
 }
 
 function printInvoice(orderId) {
-    window.open(`../../Backend/logic/printInvoice.php?orderId=${orderId}`, '_blank');
+    $.ajax({
+        url: `../../Backend/config/serviceHandler.php`,
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'printInvoice', 
+            method: 'generateInvoice', 
+            param: orderId 
+        }),
+        contentType: 'application/json',
+        success: function(data) {
+            var blob = new Blob([data], { type: 'text/html' });
+            var url = URL.createObjectURL(blob);
+            var win = window.open('', '_blank');
+            win.document.write(data); // Writes the fetched HTML data into new window
+            win.document.close(); // Close the document to finish writing
+            win.print(); // Triggers the print dialog in the new window
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching invoice:', status, error);
+        }
+    });
 }
