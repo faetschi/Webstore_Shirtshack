@@ -1,6 +1,8 @@
 <?php
 include_once("../config/dataHandler_Orders.php");
 
+header('Content-Type: text/html; charset=utf-8');
+
 function generateInvoiceNumber($orderId) {
     return "INV-" . $orderId . "-" . time();
 }
@@ -90,9 +92,6 @@ if (isset($_GET['orderId'])) {
                         </tr>
                     </table>
                 </div>
-                <script>
-                    window.print();
-                </script>
             </body>
             </html>
             <?php
