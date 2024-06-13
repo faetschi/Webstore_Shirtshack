@@ -113,8 +113,14 @@ function toggleDetails(index, orderId) {
 
 function printInvoice(orderId) {
     $.ajax({
-        url: `../../Backend/logic/printInvoice.php?orderId=${orderId}`,
-        type: 'GET', // or 'POST' if you adjust your server-side accordingly
+        url: `../../Backend/config/serviceHandler.php`,
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'printInvoice', 
+            method: 'generateInvoice', 
+            param: orderId 
+        }),
+        contentType: 'application/json',
         success: function(data) {
             var blob = new Blob([data], { type: 'text/html' });
             var url = URL.createObjectURL(blob);
