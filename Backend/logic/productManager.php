@@ -18,15 +18,8 @@ class ProductManager {
         $category = $param['category'];
         $image = $param['image'];
 
-        // Validate parameters (not shown for brevity)
-            // image = rückgängig convert -> fertigesBild
-            // fertigesBild abspeichern in den media folder
-            // pfad zum mediafolder in die db (../media/fertigesBild.jpg)
-
         // Update the product
         return $this->dh->updateProduct($id, $name, $description, $price, $category, $image);
-        
-      
     }
 
 
@@ -72,7 +65,7 @@ class ProductManager {
     
 
     
-    public function getCategories() {
+    public function getCategories($param) {
         try {
             $categories = $this->dh->getCategories();
             return array("status" => "success", "data" => $categories);

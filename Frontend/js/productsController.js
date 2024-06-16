@@ -75,7 +75,7 @@ function loadProducts() {
                     var productPrice = parseFloat(product.price);
                     var productImage = product.image ? 'data:image/png;base64,' + product.image : '/path/to/placeholder.jpg';
                     var productItem = `
-                        <div class="col-md-4" data-product-id="${product.id}">
+                        <div class="col-md-4" data-product-id="${product.id}" data-category="${product.category_name.toLowerCase()}">
                             <div class="card">
                                 <img src="${productImage}" class="card-img-top" alt="${product.name}">
                                 <div class="card-body">
@@ -97,6 +97,8 @@ function loadProducts() {
                     var quantity = 1;
                     addToCart(productId, productName, productPrice, quantity);
                 });
+
+                filterProducts(); // Call filterProducts after loading products
             } else {
                 alert('Failed to load products: ' + response.message);
             }
@@ -107,6 +109,7 @@ function loadProducts() {
         }
     });
 }
+
 
 
 
@@ -245,6 +248,7 @@ function loadProductsForEdit() {
     });
 }*/
 
+//new 
 function loadProductsForEdit() {
     console.log('Loading products for edit...');
     $.ajax({
@@ -266,45 +270,82 @@ function loadProductsForEdit() {
                 productTableBody.empty();
                 console.log('Product table cleared');
 
-                products.forEach(function (product) {
-                    console.log('Appending product:', product);
-                    var imageFilename = product.image ? 'Current image: ' + product.image.substring(0, 30) + '...' : 'No image available';
-                    var row = `
-                        <tr>
-                            <td>${product.id}</td>
-                            <td><input type="text" class="form-control" value="${product.name}" id="name-${product.id}" disabled></td>
-                            <td><input type="text" class="form-control" value="${product.description}" id="description-${product.id}" disabled></td>
-                            <td><input type="number" class="form-control" value="${product.price}" id="price-${product.id}" disabled></td>
-                            <td><input type="text" class="form-control" value="${product.category_name}" id="category-${product.id}" disabled></td>
-                            <td>
-                                <span id="current-image-${product.id}">${imageFilename}</span>
-                                <input type="file" class="form-control mt-2" id="image-${product.id}">
-                            </td>
-                            <td>
-                                <button class="btn btn-primary btn-sm edit-btn" data-product-id="${product.id}">Edit</button>
-                                <button class="btn btn-success btn-sm save-btn" data-product-id="${product.id}" style="display:none;">Save</button>
-                                <button class="btn btn-danger btn-sm delete-btn" data-product-id="${product.id}">Delete</button>
-                            </td>
-                        </tr>
-                    `;
-                    productTableBody.append(row);
-                });
+                // Load categories once to use for all products
+                $.ajax({
+                    url: '../../Backend/config/serviceHandler.php',
+                    type: 'POST',
+                    data: JSON.stringify({
+                        logicComponent: 'ProductManager',
+                        method: 'getCategories',
+                        param: {}
+                    }),
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (catResponse) {
+                        console.log('Response from getCategories:', catResponse);
+                        if (catResponse.status === 'success') {
+                            var categories = catResponse.data;
 
-                console.log('All products appended');
+                            products.forEach(function (product) {
+                                console.log('Appending product:', product);
+                                var imageFilename = product.image ? 'Current image: ' + product.image.substring(0, 30) + '...' : 'No image available';
+                                var categoryOptions = categories.map(category => {
+                                    var selected = category.id == product.category_id ? 'selected' : '';
+                                    return `<option value="${category.name}" ${selected}>${category.name}</option>`;
+                                }).join('');
 
-                $('.edit-btn').on('click', function () {
-                    var productId = $(this).data('product-id');
-                    editProduct(productId);
-                });
+                                var row = `
+                                    <tr>
+                                        <td>${product.id}</td>
+                                            <td><input type="text" class="form-control" value="${product.name}" id="name-${product.id}" disabled></td>
+                                            <td><input type="text" class="form-control" value="${product.description}" id="description-${product.id}" disabled></td>
+                                            <td><input type="number" class="form-control" value="${product.price}" id="price-${product.id}" disabled></td>
+                                            
+                                        <td>
+                                            <select class="form-control" id="category-${product.id}" disabled>
+                                                ${categoryOptions}
+                                            </select>
+                                        </td>
 
-                $('.save-btn').on('click', function () {
-                    var productId = $(this).data('product-id');
-                    saveProduct(productId);
-                });
+                                        <td>
+                                            <span id="current-image-${product.id}">${imageFilename}</span>
+                                                <input type="file" class="form-control mt-2" id="image-${product.id}" disabled>  <!-- Ensure this is disabled initially -->
+                                        </td>
 
-                $('.delete-btn').on('click', function () {
-                    var productId = $(this).data('product-id');
-                    deleteProduct(productId);
+                                        <td>
+                                            <button class="btn btn-primary btn-sm edit-btn" data-product-id="${product.id}">Edit</button>
+                                            <button class="btn btn-success btn-sm save-btn" data-product-id="${product.id}" style="display:none;">Save</button>
+                                            <button class="btn btn-danger btn-sm delete-btn" data-product-id="${product.id}">Delete</button>
+                                        </td>
+                                    </tr>
+                                `;
+                                productTableBody.append(row);
+                            });
+
+                            console.log('All products appended');
+
+                            $('.edit-btn').on('click', function () {
+                                var productId = $(this).data('product-id');
+                                editProduct(productId);
+                            });
+
+                            $('.save-btn').on('click', function () {
+                                var productId = $(this).data('product-id');
+                                saveProduct(productId);
+                            });
+
+                            $('.delete-btn').on('click', function () {
+                                var productId = $(this).data('product-id');
+                                deleteProduct(productId);
+                            });
+                        } else {
+                            alert('Failed to load categories: ' + catResponse.message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('Error loading categories.', textStatus, errorThrown);
+                        alert('Error loading categories. Please try again.');
+                    }
                 });
             } else {
                 alert('Failed to load products: ' + response.message);
@@ -322,14 +363,18 @@ function loadProductsForEdit() {
 
 
 
+
 function editProduct(productId) {
     $('#name-' + productId).prop('disabled', false);
     $('#description-' + productId).prop('disabled', false);
     $('#price-' + productId).prop('disabled', false);
     $('#category-' + productId).prop('disabled', false);
+    $('#image-' + productId).prop('disabled', false);  // Enable the image file input
     $('.edit-btn[data-product-id="' + productId + '"]').hide();
     $('.save-btn[data-product-id="' + productId + '"]').show();
 }
+
+
 
 
 /*
@@ -551,6 +596,7 @@ function saveProduct(productId) {
 
 
 
+
 function updateProduct(productId, name, description, price, category, image) {
     $.ajax({
         url: '../../Backend/config/serviceHandler.php',
@@ -585,6 +631,7 @@ function updateProduct(productId, name, description, price, category, image) {
         }
     });
 }
+
 
 
 
@@ -634,11 +681,48 @@ function filterProducts() {
     var searchValue = $('#searchBar').val().toLowerCase();
     var categoryValue = $('#categoryFilter').val().toLowerCase();
 
-    $('#productList .col-md-4').filter(function () {
-        var matchesSearch = $(this).text().toLowerCase().indexOf(searchValue) > -1;
-        var matchesCategory = categoryValue === 'all' || $(this).data('category').toLowerCase() === categoryValue;
+    $('#productList .col-md-4').each(function () {
+        var productText = $(this).text().toLowerCase();
+        var productCategory = $(this).data('category').toLowerCase();
+        var matchesSearch = productText.indexOf(searchValue) > -1;
+        var matchesCategory = categoryValue === 'all' || productCategory === categoryValue;
 
         $(this).toggle(matchesSearch && matchesCategory);
     });
 }
+
+function loadCategoriesForFilter() {
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'ProductManager',
+            method: 'getCategories',
+            param: {}
+        }),
+        dataType: 'json',
+        contentType: 'application/json',
+        success: function (response) {
+            console.log('Response from getCategories:', response);
+            if (response.status === 'success') {
+                var categories = response.data;
+                var categorySelect = $('#categoryFilter');
+
+                categories.forEach(function (category) {
+                    var option = $('<option></option>').attr('value', category.name.toLowerCase()).text(category.name);
+                    categorySelect.append(option);
+                });
+            } else {
+                alert('Failed to load categories: ' + response.message);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error('Error loading categories.', textStatus, errorThrown);
+            alert('Error loading categories. Please try again.');
+        }
+    });
+}
+
+
+
 

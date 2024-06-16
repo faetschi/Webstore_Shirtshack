@@ -12,9 +12,9 @@
     <style>
         .card-img-top {
             width: 100%;
-            height: auto; /* Maintain aspect ratio */
-            max-height: 200px; /* Set a reasonable max height */
-            object-fit: cover; /* Cover the container without stretching */
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -34,6 +34,7 @@
     <script>
         $(document).ready(function() {
             loadProducts();
+            loadCategoriesForFilter();
             $('#searchBar').on('keyup', function () {
                 filterProducts();
             });
