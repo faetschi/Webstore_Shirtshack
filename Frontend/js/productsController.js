@@ -20,9 +20,15 @@ $(document).ready(function () {
 
 function loadCategoriesForForm() {
     $.ajax({
-        url: '../../Backend/logic/getCategories.php',
-        type: 'GET',
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'ProductManager',
+            method: 'getCategories',
+            param: {}
+        }),
         dataType: 'json',
+        contentType: 'application/json',
         success: function (response) {
             console.log('Response from getCategories:', response);
             if (response.status === 'success') {
@@ -45,11 +51,20 @@ function loadCategoriesForForm() {
     });
 }
 
+
+
+
 function loadProducts() {
     $.ajax({
-        url: '../../Backend/logic/getProducts.php',
-        type: 'GET',
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'ProductManager',
+            method: 'getProductsWithCategory',
+            param: {}
+        }),
         dataType: 'json',
+        contentType: 'application/json',
         success: function (response) {
             if (response.status === 'success') {
                 var products = response.data;
@@ -58,10 +73,11 @@ function loadProducts() {
 
                 products.forEach(function(product) {
                     var productPrice = parseFloat(product.price);
+                    var productImage = product.image ? 'data:image/png;base64,' + product.image : '/path/to/placeholder.jpg';
                     var productItem = `
                         <div class="col-md-4" data-product-id="${product.id}">
                             <div class="card">
-                                <img src="/path/to/your/image.jpg" class="card-img-top" alt="${product.name}">
+                                <img src="${productImage}" class="card-img-top" alt="${product.name}">
                                 <div class="card-body">
                                     <h5 class="card-title">${product.name}</h5>
                                     <p class="card-text">${product.description}</p>
@@ -91,6 +107,8 @@ function loadProducts() {
         }
     });
 }
+
+
 
 function addToCart(productId, productName, productPrice, quantity) {
     addToSessionCart(productId, productName, productPrice, quantity);
@@ -160,11 +178,17 @@ function showNotification(message) {
 function loadProductsForEdit() {
     console.log('Loading products for edit...');
     $.ajax({
-        url: '../../Backend/logic/getProducts.php',
-        type: 'GET',
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'ProductManager',
+            method: 'getProductsWithCategory',
+            param: {}
+        }),
         dataType: 'json',
+        contentType: 'application/json',
         success: function (response) {
-            console.log('Response from getProducts:', response);
+            console.log('Response from getProductsWithCategory:', response);
             if (response.status === 'success') {
                 var products = response.data;
                 var productTableBody = $('#productTableBody');
@@ -221,6 +245,7 @@ function loadProductsForEdit() {
 
 
 
+
 function editProduct(productId) {
     $('#name-' + productId).prop('disabled', false);
     $('#description-' + productId).prop('disabled', false);
@@ -239,27 +264,34 @@ function saveProduct(productId) {
     var category = $('#category-' + productId).val();
 
     $.ajax({
-        url: '../../Backend/logic/updateProduct.php',
+        url: '../../Backend/config/serviceHandler.php',
         type: 'POST',
         data: JSON.stringify({
-            id: productId,
-            name: name,
-            description: description,
-            price: price,
-            category: category
+            logicComponent: 'ProductManager',
+            method: 'updateProduct',
+            param: {
+                id: productId,
+                name: name,
+                description: description,
+                price: price,
+                category: category
+            }
         }),
+        dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log('Response from updateProduct:', response); // Debugging line
+            console.log('Response from updateProduct:', response);
             if (response.status === 'success') {
                 alert('Product updated successfully');
                 loadProductsForEdit();
+            } else if (response.status === 'noExist') {
+                alert('Category Name does not exist');
             } else {
                 alert('Failed to update product: ' + response.message);
             }
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            console.error('Error updating product.', textStatus, errorThrown);
+            console.error('Error updating product.', textStatus, errorThrown, jqXHR.responseText);
             alert('Error updating product. Please try again.');
         }
     });
@@ -273,40 +305,109 @@ function addProduct() {
     var description = $('#addProductDescription').val();
     var price = $('#addProductPrice').val();
     var category_id = $('#addProductCategory').val();
+    var imageFile = $('#addProductImage')[0].files[0];
 
-    console.log('Adding product:', {
-        name: name,
-        description: description,
-        price: price,
-        category_id: category_id
-    }); // Debugging line
+    var reader = new FileReader();
+    reader.onloadend = function() {
+        var imageBase64 = reader.result.split(',')[1];
 
-    $.ajax({
-        url: '../../Backend/logic/addProduct.php',
-        type: 'POST',
-        data: JSON.stringify({
-            name: name,
-            description: description,
-            price: price,
-            category_id: category_id
-        }),
-        contentType: 'application/json',
-        success: function (response) {
-            console.log('Response from addProduct:', response); // Debugging line
-            if (response.status === 'success') {
-                alert('Product added successfully');
-                loadProductsForEdit();
-                $('#addProductForm').trigger('reset').hide();
-            } else {
-                alert('Failed to add product: ' + response.message);
+        var productData = {
+            logicComponent: 'ProductManager',
+            method: 'addProduct',
+            param: {
+                name: name,
+                description: description,
+                price: price,
+                category_id: category_id,
+                imageBase64: imageBase64
             }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error('Error adding product.', textStatus, errorThrown);
-            alert('Error adding product. Please try again.');
-        }
-    });
+        };
+
+        $.ajax({
+            url: '../../Backend/config/serviceHandler.php',
+            type: 'POST',
+            data: JSON.stringify(productData),
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (response) {
+                console.log('Response from addProduct:', response);
+                if (response.status === 'success') {
+                    alert('Product added successfully');
+                    loadProductsForEdit();
+                    $('#addProductForm').trigger('reset').hide();
+                } else {
+                    alert('Failed to add product: ' + response.message);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error adding product.', textStatus, errorThrown);
+                alert('Error adding product. Please try again.');
+            }
+        });
+    };
+    
+    if (imageFile) {
+        reader.readAsDataURL(imageFile);
+    } else {
+        alert("Please select an image.");
+    }
 }
+
+
+
+function saveProduct(productId) {
+    var name = $('#name-' + productId).val();
+    var description = $('#description-' + productId).val();
+    var price = $('#price-' + productId).val();
+    var category = $('#category-' + productId).val();
+    var imageFile = $('#image-' + productId)[0].files[0];
+
+    if (!imageFile) {
+        alert('Please select an image.');
+        return;
+    }
+
+    var reader = new FileReader();
+    reader.onloadend = function () {
+        var base64Image = reader.result.split(',')[1]; // Get base64 part of the image
+
+        $.ajax({
+            url: '../../Backend/config/serviceHandler.php',
+            type: 'POST',
+            data: JSON.stringify({
+                logicComponent: 'ProductManager',
+                method: 'updateProduct',
+                param: {
+                    id: productId,
+                    name: name,
+                    description: description,
+                    price: price,
+                    category: category,
+                    image: base64Image
+                }
+            }),
+            contentType: 'application/json',
+            success: function (response) {
+                console.log('Response from updateProduct:', response);
+                if (response.status === 'success') {
+                    alert('Product updated successfully');
+                    loadProductsForEdit();
+                } else if (response.status === 'noExist') {
+                    alert('Category Name does not exist');
+                } else {
+                    alert('Failed to update product: ' + response.message);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error updating product.', textStatus, errorThrown, jqXHR.responseText);
+                alert('Error updating product. Please try again.');
+            }
+        });
+    };
+    reader.readAsDataURL(imageFile); // Convert image to Base64
+}
+
+
 
 
 function deleteProduct(productId) {
@@ -315,11 +416,16 @@ function deleteProduct(productId) {
     }
 
     $.ajax({
-        url: '../../Backend/logic/deleteProduct.php',
+        url: '../../Backend/config/serviceHandler.php',
         type: 'POST',
         data: JSON.stringify({
-            id: productId
+            logicComponent: 'ProductManager',
+            method: 'deleteProduct',
+            param: {
+                id: productId
+            }
         }),
+        dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
             console.log('Response from deleteProduct:', response);
@@ -331,7 +437,7 @@ function deleteProduct(productId) {
             }
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            console.error('Error deleting product.', textStatus, errorThrown);
+            console.error('Error deleting product.', textStatus, errorThrown, jqXHR.responseText);
             alert('Error deleting product. Please try again.');
         }
     });
@@ -340,12 +446,13 @@ function deleteProduct(productId) {
 
 function filterProducts() {
     var searchValue = $('#searchBar').val().toLowerCase();
-    var categoryValue = $('#categoryFilter').val();
+    var categoryValue = $('#categoryFilter').val().toLowerCase();
 
-    $('#productList .col-lg-4').filter(function () {
+    $('#productList .col-md-4').filter(function () {
         var matchesSearch = $(this).text().toLowerCase().indexOf(searchValue) > -1;
-        var matchesCategory = categoryValue === 'all' || $(this).attr('data-category') === categoryValue;
+        var matchesCategory = categoryValue === 'all' || $(this).data('category').toLowerCase() === categoryValue;
 
         $(this).toggle(matchesSearch && matchesCategory);
     });
 }
+

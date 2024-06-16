@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS products (
     description TEXT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     category_id INT,
+    image TEXT,
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
