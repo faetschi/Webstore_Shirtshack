@@ -174,7 +174,7 @@ function showNotification(message) {
 
 //////////////////////////////////////// Admin function for products ////////////////////////////////////////
 
-
+/*
 function loadProductsForEdit() {
     console.log('Loading products for edit...');
     $.ajax({
@@ -205,6 +205,81 @@ function loadProductsForEdit() {
                             <td><input type="text" class="form-control" value="${product.description}" id="description-${product.id}" disabled></td>
                             <td><input type="number" class="form-control" value="${product.price}" id="price-${product.id}" disabled></td>
                             <td><input type="text" class="form-control" value="${product.category_name}" id="category-${product.id}" disabled></td>
+                            <td>
+                                <input type="file" class="form-control" id="image-${product.id}">
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm edit-btn" data-product-id="${product.id}">Edit</button>
+                                <button class="btn btn-success btn-sm save-btn" data-product-id="${product.id}" style="display:none;">Save</button>
+                                <button class="btn btn-danger btn-sm delete-btn" data-product-id="${product.id}">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                    productTableBody.append(row);
+                });
+
+                console.log('All products appended');
+
+                $('.edit-btn').on('click', function () {
+                    var productId = $(this).data('product-id');
+                    editProduct(productId);
+                });
+
+                $('.save-btn').on('click', function () {
+                    var productId = $(this).data('product-id');
+                    saveProduct(productId);
+                });
+
+                $('.delete-btn').on('click', function () {
+                    var productId = $(this).data('product-id');
+                    deleteProduct(productId);
+                });
+            } else {
+                alert('Failed to load products: ' + response.message);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error('Error loading products.', textStatus, errorThrown);
+            alert('Error loading products. Please try again.');
+        }
+    });
+}*/
+
+function loadProductsForEdit() {
+    console.log('Loading products for edit...');
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'ProductManager',
+            method: 'getProductsWithCategory',
+            param: {}
+        }),
+        dataType: 'json',
+        contentType: 'application/json',
+        success: function (response) {
+            console.log('Response from getProductsWithCategory:', response);
+            if (response.status === 'success') {
+                var products = response.data;
+                var productTableBody = $('#productTableBody');
+
+                productTableBody.empty();
+                console.log('Product table cleared');
+
+                products.forEach(function (product) {
+                    console.log('Appending product:', product);
+                    var imageFilename = product.image ? 'Current image: ' + product.image.substring(0, 30) + '...' : 'No image available';
+                    var row = `
+                        <tr>
+                            <td>${product.id}</td>
+                            <td><input type="text" class="form-control" value="${product.name}" id="name-${product.id}" disabled></td>
+                            <td><input type="text" class="form-control" value="${product.description}" id="description-${product.id}" disabled></td>
+                            <td><input type="number" class="form-control" value="${product.price}" id="price-${product.id}" disabled></td>
+                            <td><input type="text" class="form-control" value="${product.category_name}" id="category-${product.id}" disabled></td>
+                            <td>
+                                <span id="current-image-${product.id}">${imageFilename}</span>
+                                <input type="file" class="form-control mt-2" id="image-${product.id}">
+                            </td>
                             <td>
                                 <button class="btn btn-primary btn-sm edit-btn" data-product-id="${product.id}">Edit</button>
                                 <button class="btn btn-success btn-sm save-btn" data-product-id="${product.id}" style="display:none;">Save</button>
@@ -246,6 +321,7 @@ function loadProductsForEdit() {
 
 
 
+
 function editProduct(productId) {
     $('#name-' + productId).prop('disabled', false);
     $('#description-' + productId).prop('disabled', false);
@@ -256,7 +332,7 @@ function editProduct(productId) {
 }
 
 
-
+/*
 function saveProduct(productId) {
     var name = $('#name-' + productId).val();
     var description = $('#description-' + productId).val();
@@ -295,7 +371,7 @@ function saveProduct(productId) {
             alert('Error updating product. Please try again.');
         }
     });
-}
+}*/
 
 
 
@@ -354,19 +430,43 @@ function addProduct() {
 }
 
 
-
+/*
 function saveProduct(productId) {
     var name = $('#name-' + productId).val();
     var description = $('#description-' + productId).val();
     var price = $('#price-' + productId).val();
     var category = $('#category-' + productId).val();
     var imageFile = $('#image-' + productId)[0].files[0];
-
+    	
+    
     if (!imageFile) {
-        alert('Please select an image.');
-        return;
+
+        $.ajax({
+            url: '../../Backend/config/serviceHandler.php',
+            type: 'POST',
+            data: JSON.stringify({
+                logicComponent: 'ProductManager',
+                method: 'getImage',
+                param: {
+                    id: productId
+                }
+            }),
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    imageFile = response.imagePath;
+                    ///TODO : image file is bas64 atm; change that; when 
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error retrieving current image.', textStatus, errorThrown, jqXHR.responseText);
+                alert('Error retrieving current image. Please try again.');
+            }
+        });
     }
 
+
+    // Image file is image ab diesem moment 
     var reader = new FileReader();
     reader.onloadend = function () {
         var base64Image = reader.result.split(',')[1]; // Get base64 part of the image
@@ -405,7 +505,93 @@ function saveProduct(productId) {
         });
     };
     reader.readAsDataURL(imageFile); // Convert image to Base64
+}*/
+
+function saveProduct(productId) {
+    var name = $('#name-' + productId).val();
+    var description = $('#description-' + productId).val();
+    var price = $('#price-' + productId).val();
+    var category = $('#category-' + productId).val();
+    var imageFile = $('#image-' + productId)[0].files[0];
+
+    if (!imageFile) {
+        // No new image, use the current image
+        $.ajax({
+            url: '../../Backend/config/serviceHandler.php',
+            type: 'POST',
+            data: JSON.stringify({
+                logicComponent: 'ProductManager',
+                method: 'getImage',
+                param: { id: productId }
+            }),
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    var currentImage = response.imagePath; // Base64 image from server
+                    updateProduct(productId, name, description, price, category, currentImage);
+                } else {
+                    alert('Failed to retrieve current image: ' + response.message);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error retrieving current image.', textStatus, errorThrown, jqXHR.responseText);
+                alert('Error retrieving current image. Please try again.');
+            }
+        });
+    } else {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+            var base64Image = reader.result.split(',')[1]; // Get base64 part of the new image
+            updateProduct(productId, name, description, price, category, base64Image);
+        };
+        reader.readAsDataURL(imageFile); // Convert image to Base64
+    }
 }
+
+
+
+
+function updateProduct(productId, name, description, price, category, image) {
+    $.ajax({
+        url: '../../Backend/config/serviceHandler.php',
+        type: 'POST',
+        data: JSON.stringify({
+            logicComponent: 'ProductManager',
+            method: 'updateProduct',
+            param: {
+                id: productId,
+                name: name,
+                description: description,
+                price: price,
+                category: category,
+                image: image
+            }
+        }),
+        contentType: 'application/json',
+        success: function (response) {
+            console.log('Response from updateProduct:', response);
+            if (response.status === 'success') {
+                alert('Product updated successfully');
+                loadProductsForEdit();
+            } else if (response.status === 'noExist') {
+                alert('Category Name does not exist');
+            } else {
+                alert('Failed to update product: ' + response.message);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error('Error updating product.', textStatus, errorThrown, jqXHR.responseText);
+            alert('Error updating product. Please try again.');
+        }
+    });
+}
+
+
+
+
+
+
+
 
 
 

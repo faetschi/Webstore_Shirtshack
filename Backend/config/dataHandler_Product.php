@@ -185,7 +185,58 @@ class DataHandler_Product {
     }
     
     
-
+    /*public function getImagePathByProductId($productId) {
+        // Prepare the SQL query to select the image column
+        $sql = "SELECT image FROM products WHERE id = ?";
+        
+        try {
+            // Prepare the statement
+            $stmt = $this->conn->prepare($sql); // Ensure you use the correct database connection property
+            
+            // Bind the product ID to the query
+            $stmt->bind_param("i", $productId);
+            
+            // Execute the query
+            $stmt->execute();
+            
+            // Bind the result to a variable
+            $stmt->bind_result($imagePath);
+            
+            // Fetch the result
+            if ($stmt->fetch()) {
+                return $imagePath; // Return the image path if found
+            } else {
+                return null; // Return null if no image path is found
+            }
+        } catch (Exception $e) {
+            // Handle any exceptions, such as database connection errors
+            error_log("An error occurred: " . $e->getMessage());
+            return null;
+        } finally {
+            // Close the statement
+            $stmt->close();
+        }
+    }*/
+    public function getImagePathByProductId($productId) {
+        $sql = "SELECT image FROM products WHERE id = ?";
+        
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("i", $productId);
+            $stmt->execute();
+            $stmt->bind_result($imagePath);
+            if ($stmt->fetch()) {
+                return $imagePath;
+            } else {
+                return null;
+            }
+        } catch (Exception $e) {
+            error_log("An error occurred: " . $e->getMessage());
+            return null;
+        } finally {
+            $stmt->close();
+        }
+    }
     
 
 }

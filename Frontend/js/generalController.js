@@ -1,34 +1,7 @@
 $(document).ready(function () {
     includes();
 
-    
-    //Product page
-    if (window.location.pathname.endsWith('products.html')) {
-        loadCategories();
-        loadProducts();
-
-        // event listener for search bar
-        $('#searchBar').on('keyup', function () {
-            filterProducts();
-        });
-
-        // event listener for category filter
-        $('#categoryFilter').on('change', function () {
-            filterProducts();
-        });
-    } else if (window.location.pathname.endsWith('editproducts.html')) {
-        checkIsAdmin();
-        loadProductsForEdit();
-
-        $('#createProductBtn').on('click', function () {
-            $('#addProductForm').toggle();
-        });
-
-        $('#addProductForm').on('submit', function (event) {
-            event.preventDefault();
-            addProduct();
-        });
-    }
+   
 });
 
 function includes() {

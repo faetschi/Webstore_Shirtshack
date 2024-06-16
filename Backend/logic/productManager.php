@@ -124,6 +124,39 @@ class ProductManager {
             );
         }
     }
+
+    public function getImage($param) {
+        $productId = $param['id'];
+    
+        // Validate the product ID (not shown for brevity)
+    
+        try {
+            $imagePath = $this->dh->getImagePathByProductId($productId);
+    
+            if ($imagePath) {
+                // Assuming the image path is valid and the image exists
+                return array(
+                    'status' => 'success',
+                    'imagePath' => $imagePath
+                );
+            } else {
+                // If the image path is not found
+                return array(
+                    'status' => 'error',
+                    'message' => 'Image not found for the given product ID.'
+                );
+            }
+        } catch (Exception $e) {
+            // Handle any exceptions that occur during the process
+            return array(
+                'status' => 'error',
+                'message' => 'Exception caught while retrieving image: ' . $e->getMessage()
+            );
+        }
+    }
+
+
+
     
 
 
