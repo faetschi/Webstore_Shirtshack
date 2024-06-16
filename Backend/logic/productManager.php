@@ -26,23 +26,7 @@ class ProductManager {
         // Update the product
         return $this->dh->updateProduct($id, $name, $description, $price, $category, $image);
         
-        if ($result['status'] == 'success') {
-            return array(
-                'status' => 'success',
-                'message' => 'Product updated successfully'
-            );
-        } else if ($result['status'] == 'noExist') {
-            return array(
-                'status' => 'noExist',
-                'message' => 'Category Name does not exist'
-            );
-        
-        } else {
-            return array(
-                'status' => 'error',
-                'message' => 'Error updating product'
-            );
-        }
+      
     }
 
 

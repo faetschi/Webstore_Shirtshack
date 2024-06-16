@@ -1,5 +1,4 @@
 <?php
-// logic/printInvoice.php
 
 include_once("../config/dataHandler_Orders.php");
 

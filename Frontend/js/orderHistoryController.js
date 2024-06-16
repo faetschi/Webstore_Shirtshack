@@ -25,6 +25,8 @@ function fetchUserOrders() {
             if (data.status === 'success') {
                 displayOrders(data.orders);
             } else {
+                alert('No orders found.');
+                window.location.href = '../sites/home.html';
                 console.error('Failed to retrieve orders:', data.message);
             }
         },
