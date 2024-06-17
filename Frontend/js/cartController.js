@@ -1,134 +1,139 @@
 $(document).ready(function() {
-    loadCartItems();
+    var sessionId = getSessionId();
+    loadCartFromSession(sessionId);
     
-    
-
-    // Event listeners for increase and decrease quantity buttons
-    $('#cartItems').on('click', '.increase-qty', function() {
-        let productId = $(this).closest('.card').data('product-id');
-        updateCartCount();
-        updateQuantity(productId, 1);
-        updateCartCount();
+    // Decrease quantity
+    $(document).on('click', '.decrease-quantity-btn', function() {
+        var productId = $(this).closest('.cart-item').data('product-id'); // Use .data() for consistency
+        updateItemQuantity(productId, -1);
     });
 
-    $('#cartItems').on('click', '.decrease-qty', function() {
-        let productId = $(this).closest('.card').data('product-id');
-        updateCartCount();
-        updateQuantity(productId, -1);        
-        updateCartCount();
+    // Increase quantity
+    $(document).on('click', '.increase-quantity-btn', function() {
+        var productId = $(this).closest('.cart-item').data('product-id'); // Use .data() for consistency
+        updateItemQuantity(productId, 1);
     });
 
-    // Event listener for remove button
-    $('#cartItems').on('click', '.btn-danger', function() {
-        let productId = $(this).closest('.card').data('product-id');
-        console.log("Product ID:", productId);
-        if (productId) {
-            removeFromCart(productId);
+    // Remove item
+    $(document).on('click', '.remove-item-btn', function() {
+        var productId = $(this).closest('.cart-item').data('product-id'); // Use .data() for consistency
+        var cartItems = JSON.parse(sessionStorage.getItem('cart')) || [];
+        var newCartItems = cartItems.filter(function(item) {
+            return item.productId !== productId;
+        });
+        
+        // Remove the HTML element for the cart item
+        $(this).closest('.cart-item').remove();
+        
+        // Update the total and the session storage
+        updateCartTotal(newCartItems);
+        sessionStorage.setItem('cart', JSON.stringify(newCartItems));
+    });
+
+    $('#checkout-btn').click(function() {
+        if (isLoggedIn()) {
+            // Retrieve cartItems from sessionStorage
+            var cartItems = JSON.parse(sessionStorage.getItem('cart')) || [];
+            if(cartItems.length > 0){
+                sessionStorage.setItem('cart', JSON.stringify(cartItems));  // Ensure cartItems is current cart data
+                window.location.href = '../sites/checkout.html';
+            } else {
+                alert('Your cart is empty. Please add some items before checking out.');
+            }
         } else {
-            console.error("Failed to capture the product ID.");
+            // User is not logged in, show an alert
+            alert('Please log in to place orders.');
         }
     });
-    ;
-    updateCartCount();
+    
+
 });
 
-
-
-function loadCartItems() {
-    $.ajax({
-        url: '../../Backend/logic/getCarts.php',
-        method: 'GET',
-        success: function(response) {
-            if (response.status === 'success') {
-                displayCartItems(response.data.items);
-                updateCartTotal();
-            } else {
-                console.error('Failed to load cart items:', response.message);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Error fetching cart items:', status, error);
-            console.log('Server response:', xhr.responseText);
-        }
-    });
-}
-
-function displayCartItems(items) {
-    const container = $('#cartItems');
-    const template = $('#cart-item-template').html();
-    container.empty();
-
-    items.forEach(item => {
-        let element = $(template);
-        element.find('.card').attr('data-product-id', item.product_id);
-        element.find('.card-img-top').attr('src', item.image).attr('alt', item.name);
-        element.find('.card-title').text(item.name);
-        element.find('.card-text').text(item.description);
-        element.find('.card-price').text('Price: $' + item.price);
-        element.find('.cart-quantity').text(item.quantity);
-        element.attr('data-product-id', item.product_id);
-        container.append(element);
-    });
-}
-
-function updateCartTotal() {
-    let total = 0;
-    $('#cartItems .card').each(function() {
-        let price = parseFloat($(this).find('.card-price').text().replace('Price: $', ''));
-        let quantity = parseInt($(this).find('.cart-quantity').text());
-        total += price * quantity;
-    });
-    $('#cartTotal').text(total.toFixed(2));
-}
-
-function updateQuantity(productId, change) {
-    let qtyElement = $('div[data-product-id="' + productId + '"]').find('.cart-quantity');
-    let newQty = parseInt(qtyElement.text()) + change;
-
-    if (newQty > 0) {
-        // Update the quantity on the server
-        $.ajax({
-            url: '../../Backend/logic/updateCartItem.php',
-            method: 'POST',
-            data: {
-                productId: productId,
-                quantity: newQty
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    qtyElement.text(newQty);
-                    updateCartTotal();
-                } else {
-                    alert('Failed to update quantity: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('Error updating quantity.');
-            }
+function loadCartFromSession(sessionId) {
+    var cartDataString = sessionStorage.getItem('cart');
+    if (!cartDataString) {
+        console.log("No cart data in session.");
+        return;
+    }
+    
+    try {
+        var cartData = JSON.parse(cartDataString);
+        cartData = cartData.map(item => {
+            item.price = item.price || '0.00'; // Default price if undefined
+            const itemPrice = parseFloat(item.price);
+            item.price = isNaN(itemPrice) ? '0.00' : itemPrice.toFixed(2);
+            item.name = item.name || 'Unnamed Item'; // Default name if undefined
+            return item;
         });
-    } else {
-        removeFromCart(productId);
+        console.log("Cart data loaded from session:", cartData);
+        updateCartDisplay(cartData);
+        updateCartTotal(cartData);
+    } catch (error) {
+        console.error("Error parsing cart data from session:", error);
     }
 }
 
-function removeFromCart(productId) {
-    console.log("Trying to remove product with ID:", productId);
-
-    $.ajax({
-        url: '../../Backend/logic/removeCartItem.php',
-        method: 'POST',
-        data: { productId: productId },
-        success: function(response) {
-            if (response.status === 'success') {
-                $('div[data-product-id="' + productId + '"]').remove();
-                updateCartTotal();
-            } else {
-                alert('Failed to remove item: ' + response.message);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('AJAX error when trying to remove item:', status, error);
-            alert('Error removing item.');
-        }
+function updateCartDisplay(cartItems) {
+    var cartList = $('#cart-summary');
+    cartList.empty();
+    cartItems.forEach(function(item) {
+        var itemHtml = `
+            <div class="cart-item" data-product-id="${item.productId}">
+                <div class="item-details">
+                    <p>${item.name} - $${item.price} x <span class="item-quantity">${item.quantity}</span></p>
+                </div>
+                <div>
+                    <button class="btn btn-small btn-secondary decrease-quantity-btn" data-product-id="${item.productId}">-</button>
+                    <button class="btn btn-small btn-secondary increase-quantity-btn" data-product-id="${item.productId}">+</button>
+                    <button class="btn btn-small btn-danger remove-item-btn" data-product-id="${item.productId}">Remove</button>
+                </div>
+            </div>
+        `;
+        cartList.append(itemHtml);
     });
+}
+
+
+function updateCartTotal(cartItems) {
+    var total = cartItems.reduce(function(acc, item) {
+        return acc + (parseFloat(item.price) * item.quantity);
+    }, 0);
+    $('#cart-total').text(`$${total.toFixed(2)}`);
+}
+
+function updateItemQuantity(productId, change) {
+    var cartItems = JSON.parse(sessionStorage.getItem('cart')) || [];
+    var found = false;
+
+    cartItems = cartItems.map(item => {
+        if (item.productId === productId) {
+            item.quantity += change;
+            found = true;
+        }
+        return item;
+    });
+
+    if (!found) {
+        console.error('Product not found:', productId);
+        return;
+    }
+
+    updateCartDisplay(cartItems);
+    updateCartTotal(cartItems);
+    sessionStorage.setItem('cart', JSON.stringify(cartItems));
+}
+
+function getSessionId() {
+    return sessionStorage.getItem('sessionId') || generateNewSessionId();
+}
+
+function generateNewSessionId() {
+    var newSessionId = 'sess_' + Math.random().toString(36).substr(2, 9);
+    sessionStorage.setItem('sessionId', newSessionId);
+    return newSessionId;
+}
+
+function isLoggedIn() {
+    // Check both localStorage and sessionStorage for user login status
+    return localStorage.getItem('loggedIn') === 'true' || sessionStorage.getItem('loggedIn') === 'true';
 }

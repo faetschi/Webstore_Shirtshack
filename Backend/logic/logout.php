@@ -2,8 +2,10 @@
 class Logout {
     public function handleRequest() {
         session_start();
-        session_destroy();
-        session_unset();
+        unset($_SESSION["isAdmin"]);
+        unset($_SESSION["customer_id"]);
+        unset($_SESSION["loggedIn"]);
+        unset($_SESSION["username"]);
 
         if (isset($_COOKIE["remember"])) {
             setcookie("remember", "", time() - 3600, "/");

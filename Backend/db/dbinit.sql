@@ -28,8 +28,15 @@ CREATE TABLE IF NOT EXISTS products (
     description TEXT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     category_id INT,
+    image TEXT,
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
+
+INSERT INTO customers 
+(salutations, firstname, lastname, username, password, email, street, city, zip, payment_option, is_Admin, active) 
+VALUES
+('Mr.', 'John', 'Doe', 'admin', '$2y$10$o3ZMZMCN0N8JnxKgz.I6AuUahBOK7zLDVF3gK/UTt9jhf5wJkcvOu', 'admin@admin.com', '123 Admin St', 'Admin City', '12345', 'Credit', 1, 1);
+
 
 INSERT INTO categories (name) VALUES
 ('Basic T-Shirts'),
@@ -43,28 +50,28 @@ INSERT INTO products (name, description, price, category_id) VALUES
 ('Long Sleeve Blue Shirt', 'A comfortable long sleeve shirt in blue.', 19.99, 3),
 ('Cozy Hoodie', 'A warm and cozy hoodie.', 29.99, 4);
 
--- Create a cart table
-CREATE TABLE IF NOT EXISTS carts (
+CREATE TABLE IF NOT EXISTS coupons (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT NULL, -- Nullable if you want to support non-logged in users
-    session_id VARCHAR(255) NULL, -- For tracking carts of non-logged users
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES customers(id)
+    code VARCHAR(255) NOT NULL UNIQUE,
+    discountAmount DECIMAL(10, 2) NOT NULL,
+    discountType ENUM('Percentage', 'Fixed') NOT NULL,
+    expirationDate DATE NOT NULL
 );
 
--- Create a cart items table
-CREATE TABLE IF NOT EXISTS cart_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    cart_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT DEFAULT 1,
-    price DECIMAL(10, 2), -- Stores the price at the time of addition to cart
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (cart_id) REFERENCES carts(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
+CREATE TABLE IF NOT EXISTS orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    total_price DECIMAL(10, 2) NOT NULL,
+    payment_option ENUM('credit_card', 'invoice') NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES customers(id)
 );
 
--- Indexes to improve performance on frequently accessed columns
-CREATE INDEX idx_cart on cart_items(cart_id);
-CREATE INDEX idx_product on cart_items(product_id);
+CREATE TABLE IF NOT EXISTS order_items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);

@@ -56,6 +56,36 @@ class DataHandler_Customer {
         return $customer;
     }
 
+    public function queryCustomerByCredentials($credentials) {
+        $sql = "SELECT * FROM customers WHERE username = ? OR email = ?";
+        $stmt = $this->conn->prepare($sql);
+        
+        $stmt->bind_param("ss", $credentials, $credentials);  // Using 'credentials' in place of 'login'
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+    
+    public function isEmailInUseByAnotherUser($email, $currentUserId) {
+        $sql = "SELECT id FROM customers WHERE email = ? AND id != ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("si", $email, $currentUserId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
+    }
+
+    public function updateCustomerPassword($id, $newHashedPassword) {
+        $sql = "UPDATE customers SET password = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("si", $newHashedPassword, $id);
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     public function createCustomer($customer) {
         // check if a customer with the same username already exists
         if ($this->queryCustomerByUsername($customer->username) !== null) {
@@ -117,5 +147,19 @@ class DataHandler_Customer {
             return false;
         }
     }
+
+    public function queryCustomerByspecificId($id) {
+        $sql = "SELECT * FROM customers WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        } else {
+            return null;
+        }
+    }
+    
 
 }
