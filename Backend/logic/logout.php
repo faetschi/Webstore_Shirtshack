@@ -1,25 +1,21 @@
 <?php
-// Start the session
-session_start();
+class Logout {
+    public function handleRequest() {
+        session_start();
+        unset($_SESSION["isAdmin"]);
+        unset($_SESSION["customer_id"]);
+        unset($_SESSION["loggedIn"]);
+        unset($_SESSION["username"]);
 
-// Unset all session variables
-$_SESSION = array();
+        if (isset($_COOKIE["remember"])) {
+            setcookie("remember", "", time() - 3600, "/");
+        }
 
-// Destroy the session
-session_destroy();
+        $data = array(
+            "status" => "LoggedOut"
+        );
 
-// Check if the remember cookie exists and if so, delete it
-if (isset($_COOKIE["remember"])) {
-    // Expire the cookie by setting its expiration time to a past value
-    setcookie("remember", "", time() - 3600, "/");
+        return $data;
+    }
 }
-
-// Prepare the response data
-$data = array(
-    "status" => "LoggedOut"
-);
-
-// Send the response data to the frontend
-header('Content-Type: application/json');
-echo json_encode($data);
 ?>

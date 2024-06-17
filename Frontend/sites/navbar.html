@@ -8,10 +8,11 @@
   .admin-only {
       display: none;
   }
+  
 </style>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-      <a class="navbar-brand" href="home.html">WebShop</a>
+      <a class="navbar-brand" href="home.html">ShirtShack</a>
       <div class="collapse navbar-collapse d-flex justify-content-between" id="navbarNav">
     <!-- left side navbar -->
           <div class="navbar-nav">
@@ -19,37 +20,24 @@
             <li class="nav-item">
                 <a class="nav-link" href="products.html">Products</a>
             </li>
-            <li>
-                <a class="nav-link" href="coupons.html">Coupons</a>
-            </li>
         <!-- user is logged in -->
 
             <li class="nav-item user-only">
-              <a class="nav-link" href="orders.html">Orders</a>
+              <a class="nav-link" href="orders.html">My Orders and Invoices</a>
             </li>
-            <li class="nav-item user-only">
-              <a class="nav-link" href="invoices.html">Invoices</a>
-            </li>
-
               <li class="nav-item admin-only" id="editProducts">
-                <a class="nav-link" href="editproducts.html"><b>Edit Products</b></a>
+                <a class="nav-link" href="editproducts.html">Edit Products</a>
               </li>
               <li class="nav-item admin-only" id="editCustomers">
-                <a class="nav-link" href="editcustomers.html"><b>Manage Customers</b></a>
+                <a class="nav-link" href="editcustomers.html">Edit Customers</a>
               </li>
               <li class="nav-item admin-only" id="editCoupons">
-                <a class="nav-link" href="editcoupons.html"><b>Manage Coupons</b></a>
+                <a class="nav-link" href="editcoupons.html">Manage Coupons</a>
               </li>
 
           </div>
     <!-- right side navbar -->
           <div class="navbar-nav">
-            <li class="nav-item align-self-center">
-                <form class="form-inline d-flex">
-                    <input class="form-control form-control-sm mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success btn-sm my-2 my-sm-0" type="submit" style="margin-left: 5px;">Search</button>
-                </form>
-            </li>
         <!-- user is not logged in -->
 
             <li class="nav-item">
@@ -71,11 +59,14 @@
             </li>
 
         <!-- always available -->
-          <li class="nav-item">
-              <a class="nav-link" href="bag.html">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 19.5c0 .829-.672 1.5-1.5 1.5s-1.5-.671-1.5-1.5c0-.828.672-1.5 1.5-1.5s1.5.672 1.5 1.5zm3.5-1.5c-.828 0-1.5.671-1.5 1.5s.672 1.5 1.5 1.5 1.5-.671 1.5-1.5c0-.828-.672-1.5-1.5-1.5zm1.336-5l1.977-7h-16.813l2.938 7h11.898zm4.969-10l-3.432 12h-12.597l.839 2h13.239l3.474-12h1.929l.743-2h-4.195z"/></svg>
-              </a>
-          </li>
+        <li class="nav-item">
+          <a class="nav-link" href="cart.html">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M10 19.5c0 .829-.672 1.5-1.5 1.5s-1.5-.671-1.5-1.5c0-.828.672-1.5 1.5-1.5s1.5.672 1.5 1.5 1.5-.671 1.5-1.5c0-.828-.672-1.5-1.5-1.5zm3.5-1.5c-.828 0-1.5.671-1.5 1.5s.672 1.5 1.5 1.5 1.5-.671 1.5-1.5c0-.828-.672-1.5-1.5-1.5zm1.336-5l1.977-7h-16.813l2.938 7h11.898zm4.969-10l-3.432 12h-12.597l.839 2h13.239l3.474-12h1.929l.743-2h-4.195z"/>
+              </svg>
+              <span id="cart-count" class="cart-count-badge">0</span>
+          </a>
+      </li>
           </div>
       </div>
   </div>
