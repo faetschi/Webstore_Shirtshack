@@ -36,7 +36,7 @@ $(document).ready(function() {
             var cartItems = JSON.parse(sessionStorage.getItem('cart')) || [];
             if(cartItems.length > 0){
                 sessionStorage.setItem('cart', JSON.stringify(cartItems));  // Ensure cartItems is current cart data
-                window.location.href = '../sites/checkout.html';  // Redirect to order page for final confirmation
+                window.location.href = '../sites/checkout.html';
             } else {
                 alert('Your cart is empty. Please add some items before checking out.');
             }

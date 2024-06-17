@@ -80,7 +80,7 @@ class CustomerManager {
             $data['firstname'],
             $data['lastname'],
             $data['username'],
-            $customer['password'], // Could be new or old password
+            $customer['password'],
             $data['email'],
             $data['street'],
             $data['city'],

@@ -1,5 +1,7 @@
 # WebShop
 
+
+
 ## Initial Setup
 
 - Import Backend/db/dbinit.sql in your MySQL Database
