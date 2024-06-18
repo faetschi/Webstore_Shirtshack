@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS products (
 INSERT INTO customers 
 (salutations, firstname, lastname, username, password, email, street, city, zip, payment_option, is_Admin, active) 
 VALUES
-('Mr.', 'John', 'Doe', 'admin', '$2y$10$o3ZMZMCN0N8JnxKgz.I6AuUahBOK7zLDVF3gK/UTt9jhf5wJkcvOu', 'admin@admin.com', '123 Admin St', 'Admin City', '12345', 'Credit', 1, 1);
+('Mr.', 'John', 'Doe', 'admin', '$2y$10$o3ZMZMCN0N8JnxKgz.I6AuUahBOK7zLDVF3gK/UTt9jhf5wJkcvOu', 'admin@admin.com', '123 Admin St', 'Admin City', '1234', 'Credit', 1, 1);
 
 
 INSERT INTO categories (name) VALUES
