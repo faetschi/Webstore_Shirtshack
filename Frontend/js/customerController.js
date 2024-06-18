@@ -43,7 +43,7 @@ function register() {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            //console.log(response) // debug
+          
             if (response.status === 'success') {
                 window.location.href = '../sites/login.html';
             } else if (response.status === 'email_exists') {
@@ -83,7 +83,7 @@ function login() {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            //console.log(response); // debug
+      
             if (response.status == 'success') {
                 // store user details in session storage
                 if (remember) {

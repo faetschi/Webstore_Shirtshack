@@ -9,9 +9,7 @@ $(document).ready(function() {
     $('#createCouponForm').submit(function(e) {
         e.preventDefault();
 
-        console.log('Discount Type:', $('#discountType').val());
-        console.log('Discount Amount:', $('#discountAmount').val());
-        console.log('Expiration Date:', $('#expirationDate').val());
+  
 
         var couponData = {
             code: String(generateCouponCode()),
@@ -20,7 +18,7 @@ $(document).ready(function() {
             expirationDate: $('#expirationDate').val()
         };
 
-        console.log('Coupon Data:', couponData); // Debugging: Log the constructed couponData object
+  
         createCoupon(couponData);
     });
 

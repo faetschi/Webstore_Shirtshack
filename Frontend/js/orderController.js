@@ -104,7 +104,7 @@ function submitOrder() {
 
 function applyVoucher() {
     let voucherCode = document.getElementById('voucherCode').value;
-    console.log("Applying voucher:", voucherCode);  // Debugging
+
     $.ajax({
         url: '../../Backend/config/serviceHandler.php',  // Update this URL as needed
         type: 'POST',
@@ -115,7 +115,7 @@ function applyVoucher() {
         }),
         contentType: 'application/json',
         success: function(response) {
-            console.log("Response from server:", response);  // Debugging
+            
             if (response.status === 'success' && response.discountAmount) {
                 applyDiscount(parseFloat(response.discountAmount), response.discountType);
                 // Disable the apply voucher button
@@ -140,7 +140,7 @@ function disableApplyVoucherButton() {
 }
 
 function applyDiscount(discountAmount, discountType) {
-    console.log("Applying discount:", discountAmount, "Type:", discountType);  // Debugging
+   
     if (isNaN(discountAmount)) {
         console.error("Invalid discount amount:", discountAmount);  // Debugging
         alert('Error applying discount. Please try again.');
@@ -174,7 +174,7 @@ function displayOrderDetailsForCustomer() {
         window.location.href = '../sites/editcustomers.html';
         return;
     }
-    console.log(customerId);
+    
 
     $.ajax({
         url: '../../Backend/config/serviceHandler.php',

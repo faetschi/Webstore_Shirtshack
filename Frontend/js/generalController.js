@@ -100,7 +100,7 @@ function logout() {
         }),
         contentType: 'application/json',
         success: function (response) {
-            console.log(response);
+     
             if (response.status == 'LoggedOut') {
                 localStorage.removeItem('loggedIn');
                 localStorage.removeItem('isAdmin');
