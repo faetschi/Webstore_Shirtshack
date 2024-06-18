@@ -52,7 +52,7 @@ $(document).ready(function() {
 function loadCartFromSession(sessionId) {
     var cartDataString = sessionStorage.getItem('cart');
     if (!cartDataString) {
-        console.log("No cart data in session.");
+
         return;
     }
     
@@ -65,7 +65,7 @@ function loadCartFromSession(sessionId) {
             item.name = item.name || 'Unnamed Item'; // Default name if undefined
             return item;
         });
-        console.log("Cart data loaded from session:", cartData);
+ 
         updateCartDisplay(cartData);
         updateCartTotal(cartData);
     } catch (error) {

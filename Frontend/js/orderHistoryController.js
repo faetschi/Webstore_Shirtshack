@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function fetchUserOrders() {
     const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
     if (!userId) {
-        console.log("User not logged in");
+
         return;
     }
 

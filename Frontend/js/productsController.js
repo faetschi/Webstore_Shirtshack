@@ -30,7 +30,7 @@ function loadCategoriesForForm() {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log('Response from getCategories:', response);
+     
             if (response.status === 'success') {
                 var categories = response.data;
                 var categorySelect = $('#addProductCategory');
@@ -134,7 +134,7 @@ function addToSessionCart(productId, productName, productPrice, quantity) {
             quantity: quantity
         });
     }
-    console.log(cart);
+
     sessionStorage.setItem('cart', JSON.stringify(cart));
 }
 
@@ -175,7 +175,7 @@ function showNotification(message) {
 }
 
 function loadProductsForEdit() {
-    console.log('Loading products for edit...');
+
     $.ajax({
         url: '../../Backend/config/serviceHandler.php',
         type: 'POST',
@@ -187,13 +187,12 @@ function loadProductsForEdit() {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log('Response from getProductsWithCategory:', response);
+          
             if (response.status === 'success') {
                 var products = response.data;
                 var productTableBody = $('#productTableBody');
 
                 productTableBody.empty();
-                console.log('Product table cleared');
 
                 // Load categories once to use for all products
                 $.ajax({
@@ -207,12 +206,10 @@ function loadProductsForEdit() {
                     dataType: 'json',
                     contentType: 'application/json',
                     success: function (catResponse) {
-                        console.log('Response from getCategories:', catResponse);
                         if (catResponse.status === 'success') {
                             var categories = catResponse.data;
 
                             products.forEach(function (product) {
-                                console.log('Appending product:', product);
                                 var imageFilename = product.image ? 'Current image: ' + product.image.substring(0, 30) + '...' : 'No image available';
                                 var categoryOptions = categories.map(category => {
                                     var selected = category.id == product.category_id ? 'selected' : '';
@@ -247,7 +244,7 @@ function loadProductsForEdit() {
                                 productTableBody.append(row);
                             });
 
-                            console.log('All products appended');
+
 
                             $('.edit-btn').on('click', function () {
                                 var productId = $(this).data('product-id');
@@ -325,7 +322,6 @@ function addProduct() {
             dataType: 'json',
             contentType: 'application/json',
             success: function (response) {
-                console.log('Response from addProduct:', response);
                 if (response.status === 'success') {
                     alert('Product added successfully');
                     loadProductsForEdit();
@@ -411,7 +407,6 @@ function updateProduct(productId, name, description, price, category, image) {
         }),
         contentType: 'application/json',
         success: function (response) {
-            console.log('Response from updateProduct:', response);
             if (response.status === 'success') {
                 alert('Product updated successfully');
                 loadProductsForEdit();
@@ -446,7 +441,6 @@ function deleteProduct(productId) {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log('Response from deleteProduct:', response);
             if (response.status === 'success') {
                 alert('Product deleted successfully');
                 loadProductsForEdit();
@@ -488,7 +482,6 @@ function loadCategoriesForFilter() {
         dataType: 'json',
         contentType: 'application/json',
         success: function (response) {
-            console.log('Response from getCategories:', response);
             if (response.status === 'success') {
                 var categories = response.data;
                 var categorySelect = $('#categoryFilter');
