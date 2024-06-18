@@ -457,12 +457,15 @@ function deleteProduct(productId) {
 
 
 function filterProducts() {
-    var searchValue = $('#searchBar').val().toLowerCase();
-    var categoryValue = $('#categoryFilter').val().toLowerCase();
+    var searchValue = $('#searchBar').val();
+    searchValue = searchValue ? searchValue.toLowerCase() : '';
+    var categoryValue = $('#categoryFilter').val();
+    categoryValue = categoryValue ? categoryValue.toLowerCase() : '';
 
     $('#productList .col-md-4').each(function () {
         var productText = $(this).text().toLowerCase();
-        var productCategory = $(this).data('category').toLowerCase();
+        var productCategory = $(this).data('category');
+        productCategory = productCategory ? productCategory.toLowerCase() : '';
         var matchesSearch = productText.indexOf(searchValue) > -1;
         var matchesCategory = categoryValue === 'all' || productCategory === categoryValue;
 
