@@ -28,3 +28,7 @@ Before you start, ensure you have the following installed:
    ```bash
    git clone https://github.com/faetschi/Webstore_Shirtshack.git
    cd ShirtShack
+2. **Import 'Backend/db/dbinit.sql' in your MySQL Database**
+3. **Make sure to change the 'Backend/config/dbaccess.php' username and password to match your MySQL (XAMPP/MAMPP) configuration**
+
+Once the installation is complete, navigate to http://localhost/ShirtShack/ to access the ShirtShack application. From here, you can explore the features outlined above.
